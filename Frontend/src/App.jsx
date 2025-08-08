@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useState } from 'react'
 import './App.css'
+import axios from "axios";
 
-function App() {
-  const [count, setCount] = useState(0)
+class App extends React.Component {
+    constructor(props) {
+        super(props);
+        this.updateInput = this.updateInput.bind(this);
+        this.state = {
+            title: 'Hello world!',
+            content: 'content!',
+            url: 'https://www.pexels.com/photo/book-with-along-16700988/',
+            username : ''
+        }
+    }
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    updateInput(event) {
+        this.setState({
+            username: event.target.value
+        })
+    }
+
+
+    handleTextChange = () => {
+        axios.get(' http://127.0.0.1:5000/news/'+this.state.username)
+            .then(response => {
+
+                const obj = JSON.parse(response.data);
+
+                this.setState({
+                    title: obj.title,
+                    content: obj.content,
+                    url: `https://images.pexels.com/photos/${obj.photoId}/pexels-photo-${obj.photoId}.jpeg`
+                })
+            })
+            .catch(error => {
+                    console.error('There was an error!', error);
+                });
+    }
+
+
+
+    render() {
+        return (
+            <div>
+                <h2>{this.state.title}</h2>
+                <p>{this.state.content} </p>
+                <img width={500} height={500} src={this.state.url}/>
+                <input  onChange={this.updateInput}/>
+                <button onClick={this.handleTextChange}>Change text</button>
+            </div>
+        )
+    }
 }
 
 export default App
