@@ -1,23 +1,20 @@
-﻿from flask import Flask
+﻿import json
+from os.path import devnull
+
 from pymongo import MongoClient
 
 uri = "mongodb+srv://testuser:hgGWCIOcm1z7X9zM@cluster0.zrojvuw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-# Create a new client and connect to the server
-myclient = MongoClient(uri)
+my_client = MongoClient(uri)
+mydb = my_client["optimistic"]
+my_col = mydb["memory"]
 
-# Send a ping to confirm a successful connection
-try:
-    mydb = myclient["optimistic"]
+def get_all_events():
+    events = my_col.find()
+    return list(events)
 
-    mycol = mydb["test"]
-
-    mydict = {"name": "John2", "address2": "Highway 372"}
-
-    x = mycol.insert_one(mydict)
-
-    print(mycol.find_one())
-
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+async def add_event_to_world(jsonToAdd):
+    try:
+        my_col.insert_one(jsonToAdd)
+    except Exception as e:
+        print(e)

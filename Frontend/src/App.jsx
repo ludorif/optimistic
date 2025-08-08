@@ -38,6 +38,17 @@ class App extends React.Component {
                 });
     }
 
+    handleHistory = () => {
+        axios.get(' http://127.0.0.1:5000/history')
+            .then(response => {
+                const obj = JSON.parse(response.data);
+                console.log(obj[0].title);
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    }
+
 
 
     render() {
@@ -48,6 +59,7 @@ class App extends React.Component {
                 <img width={500} height={500} src={this.state.url}/>
                 <input  onChange={this.updateInput}/>
                 <button onClick={this.handleTextChange}>Change text</button>
+                <button onClick={this.handleHistory}>History</button>
             </div>
         )
     }
