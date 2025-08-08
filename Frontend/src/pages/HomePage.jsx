@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import './App.css'
+﻿import React from 'react'
+import '../App.css'
 import axios from "axios";
+import HistoryPart from '../components/HistoryPart.jsx';
 
 class App extends React.Component {
     constructor(props) {
@@ -34,24 +35,18 @@ class App extends React.Component {
                 })
             })
             .catch(error => {
-                    console.error('There was an error!', error);
-                });
-    }
-
-    handleHistory = () => {
-        axios.get(' http://127.0.0.1:5000/history')
-            .then(response => {
-                const obj = JSON.parse(response.data);
-                console.log(obj[0].title);
-            })
-            .catch(error => {
                 console.error('There was an error!', error);
             });
     }
 
 
 
+
+
+
     render() {
+
+
         return (
             <div>
                 <h2>{this.state.title}</h2>
@@ -59,7 +54,8 @@ class App extends React.Component {
                 <img width={500} height={500} src={this.state.url}/>
                 <input  onChange={this.updateInput}/>
                 <button onClick={this.handleTextChange}>Change text</button>
-                <button onClick={this.handleHistory}>History</button>
+
+
             </div>
         )
     }
