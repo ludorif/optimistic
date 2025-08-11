@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import EventToVote from "../components/EventToVote.jsx";
+import styles from '../css/mystyle.module.css'
 
 
 
@@ -45,8 +46,8 @@ const ToVotePage = () => {
             });
     }, [toRefresh]);
 
-    return <div>
-        <ul>{renderAnimals}</ul>
+    return <div >
+        <ul className={styles.customUl}>{renderAnimals}</ul>
         ;
     </div>;
 };

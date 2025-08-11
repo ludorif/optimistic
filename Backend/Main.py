@@ -2,11 +2,13 @@
 import json
 import os
 import uuid
+from datetime import datetime, timezone
 
 from google import genai
 from flask_cors import CORS, cross_origin
 from flask import Flask, jsonify, request
 
+from helper import get_utc_day
 from db import add_event_to_world, get_all_events, get_events_to_vote, increase_vote_db
 from imageGenerator import get_photo_id
 
@@ -16,8 +18,6 @@ os.environ["GEMINI_API_KEY"] = "AIzaSyDCmmQEnq-A1RdP-Nx4BqyCmKgl87_KHXI"
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST"])
 
-all_events = get_all_events()
-print(all_events)
 
 @app.route("/history")
 def history():
@@ -42,7 +42,8 @@ def news(request_text):
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=f"Imagine a newspaper's overly optimistic one sentence article based on this event: \"{request_text}\"."
+        contents=f"Imagine a newspaper's  one sentence article based on this event: \"{request_text}\"."
+                 f"It should be overly optimistic and always climate positive."
                  f"Propose only 1 choice. "
                  f"Return a valid json with the title and the content."
     )
@@ -54,8 +55,9 @@ def news(request_text):
     json_result = json.loads(response_formatted)
     json_result["_id"] = str(uuid.uuid4())
     json_result["photoId"] = get_photo_id(json_result["title"])
-    json_result["state"] = "to_vote"
-    json_result["votes"] = 0
+    json_result["date"] =  get_utc_day()
+
+    print(get_utc_day())
 
     full_json = json.dumps(json_result)
 

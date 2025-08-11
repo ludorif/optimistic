@@ -8,7 +8,7 @@ export default function  EventToVote ({title, content, photoId, voteCount, oncli
         <button onClick={onclickFunction}>
             <h2>{title}</h2>
             <p>{content} </p>
-            <img width={500} height={500} src={`https://images.pexels.com/photos/${photoId}/pexels-photo-${photoId}.jpeg`}/>
+            <img width={250} height={250} src={`https://images.pexels.com/photos/${photoId}/pexels-photo-${photoId}.jpeg`}/>
             <p>voteCount: {voteCount} </p>
         </button>
     );

@@ -41,6 +41,11 @@ const History = () => {
     return <div>
         <ul>{renderAnimals}</ul>;
         <button onClick={handleHistory}>History</button>
+        <br/>
+        <select name="cars" id="cars">
+            <option value="2025-08-11">2025-08-11</option>
+            <option value="2025-08-10">2025-08-10</option>
+        </select>
     </div>;
 };
 

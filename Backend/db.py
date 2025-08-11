@@ -1,5 +1,6 @@
 ﻿import json
-from os.path import devnull
+from datetime import datetime, timezone
+from helper import get_utc_day
 
 from pymongo import MongoClient
 
@@ -9,12 +10,15 @@ my_client = MongoClient(uri)
 mydb = my_client["optimistic"]
 my_col = mydb["memory"]
 
+
+
+
 def get_all_events():
     events = my_col.find()
     return list(events)
 
 def get_events_to_vote():
-    events = my_col.find({"state": "to_vote"})
+    events = my_col.find({"date": get_utc_day()})
     return list(events)
 
 async def add_event_to_world(jsonToAdd):
