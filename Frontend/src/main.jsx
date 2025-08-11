@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import History from "./pages/History";
 import HomePage from "./pages/HomePage";
+import ToVotePage from "./pages/ToVotePage";
 
 export default function App() {
     return (
@@ -11,6 +12,7 @@ export default function App() {
                 <Route path="/" element={<Layout />}>
                     <Route index element={<HomePage />} />
                     <Route path="history" element={<History />} />
+                    <Route path="vote" element={<ToVotePage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
