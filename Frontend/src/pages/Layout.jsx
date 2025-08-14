@@ -14,6 +14,9 @@ const Layout = () => {
                     <li>
                         <Link to="/vote">To vote</Link>
                     </li>
+                    <li>
+                        <Link to="/winners">Winners</Link>
+                    </li>
                 </ul>
             </nav>
 

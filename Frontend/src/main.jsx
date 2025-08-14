@@ -4,6 +4,7 @@ import Layout from "./pages/Layout";
 import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import ToVotePage from "./pages/ToVotePage";
+import WinnersPage from "./pages/WinnersPage.jsx";
 
 export default function App() {
     return (
@@ -13,6 +14,7 @@ export default function App() {
                     <Route index element={<HomePage />} />
                     <Route path="history" element={<History />} />
                     <Route path="vote" element={<ToVotePage />} />
+                    <Route path="winners" element={<WinnersPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -11,6 +11,7 @@ const ToVotePage = () => {
     const [toRefresh, setToRefresh] = useState(0);
 
 
+
     function Test(id){
         console.log(id)
         axios.post('http://127.0.0.1:5000/increase_vote', {event_id:id}).then(
@@ -48,7 +49,7 @@ const ToVotePage = () => {
 
     return <div >
         <ul className={styles.customUl}>{renderAnimals}</ul>
-        ;
+
     </div>;
 };
 
