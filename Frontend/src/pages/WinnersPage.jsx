@@ -14,7 +14,7 @@ function WinnersPage () {
     }
 
     useEffect(()=>{
-        axios.get("http://127.0.0.1:5000/history/all_dates").then(response => {
+        axios.get("history/all_dates").then(response => {
             const obj = JSON.parse(response.data);
 
 

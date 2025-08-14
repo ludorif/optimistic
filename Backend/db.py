@@ -31,7 +31,7 @@ def get_all_events(date):
         print(result)
 
     else:
-        result = my_col.find({"date": date})
+        result = list(my_col.find({"date": date}))
 
     return result
 

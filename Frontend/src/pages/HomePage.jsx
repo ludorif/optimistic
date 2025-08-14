@@ -23,7 +23,7 @@ class App extends React.Component {
 
 
     handleTextChange = () => {
-        axios.get(' http://127.0.0.1:5000/news/'+this.state.username)
+        axios.get('news/'+this.state.username)
             .then(response => {
 
                 const obj = JSON.parse(response.data);

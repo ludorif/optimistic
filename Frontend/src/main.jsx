@@ -5,6 +5,9 @@ import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import ToVotePage from "./pages/ToVotePage";
 import WinnersPage from "./pages/WinnersPage.jsx";
+import axios from "axios";
+
+axios.defaults.baseURL = 'http://127.0.0.1:5001';
 
 export default function App() {
     return (

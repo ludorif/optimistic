@@ -14,7 +14,7 @@ const ToVotePage = () => {
 
     function Test(id){
         console.log(id)
-        axios.post('http://127.0.0.1:5000/increase_vote', {event_id:id}).then(
+        axios.post('increase_vote', {event_id:id}).then(
             () => setToRefresh(toRefresh + 1)
         ).catch(
             error => {console.error('There was an error!', error);}
@@ -22,7 +22,7 @@ const ToVotePage = () => {
     }
 
     useEffect(() => {
-        axios.get(' http://127.0.0.1:5000/to_vote')
+        axios.get('to_vote')
             .then(response => {
                 const obj = JSON.parse(response.data);
 

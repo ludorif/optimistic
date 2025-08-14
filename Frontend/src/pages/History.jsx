@@ -11,7 +11,7 @@ const History = () => {
 
     useEffect(
         ()=>{
-            axios.get(' http://127.0.0.1:5000/get_dates')
+            axios.get('get_dates')
                 .then(response => {
 
                     const obj = JSON.parse(response.data);
@@ -40,7 +40,7 @@ const History = () => {
 
     const handleHistory = () => {
 
-        axios.get(`http://127.0.0.1:5000/history/${currentSelectedDate}`)
+        axios.get(`history/${currentSelectedDate}`)
             .then(response => {
                 const obj = JSON.parse(response.data);
                 console.log(obj[0].photoId);
@@ -66,7 +66,7 @@ const History = () => {
     }
 
     function DefineWinner() {
-        axios.get(`http://127.0.0.1:5000/define_winner/${currentSelectedDate}`)
+        axios.get(`define_winner/${currentSelectedDate}`)
             .then(response => {
                 console.log(response.data);
             })
