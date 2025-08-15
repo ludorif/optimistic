@@ -30,6 +30,7 @@ const History = () => {
                         <option key={self.crypto.randomUUID()} value={item}>{item}</option>));
                     setDates(localDatesMap)
 
+                    UpdateHistory(localDates[0])
 
                 })
                 .catch(error => {
@@ -38,9 +39,8 @@ const History = () => {
         }, []
     )
 
-    const handleHistory = () => {
-
-        axios.get(`history/${currentSelectedDate}`)
+    function UpdateHistory(selectedDate) {
+        axios.get(`history/?date=${selectedDate}`)
             .then(response => {
                 const obj = JSON.parse(response.data);
                 console.log(obj[0].photoId);
@@ -62,7 +62,6 @@ const History = () => {
             .catch(error => {
                 console.error('There was an error!', error);
             });
-
     }
 
     function DefineWinner() {
@@ -76,12 +75,12 @@ const History = () => {
     }
 
     function dateChanged(newDate) {
-        setCurrentSelectedDate(newDate.target.value);
-        handleHistory();
+        newDate = newDate.target.value;
+        setCurrentSelectedDate(newDate);
+        UpdateHistory(newDate);
     }
 
     return <div>
-        <button onClick={handleHistory}>History</button>
         <button onClick={DefineWinner}> DefineWinner</button>
         <br/>
         <select name="dateSelector" id="dateSelector" onChange={dateChanged}>

@@ -5,6 +5,8 @@ python -m venv env
 .\env\Scripts\activate     
 Flask --app Main run
 
+fastapi dev Main.py --port 5001
+
 //Update requirements from imports 
 
 pipreqs --encoding=utf-8-sig --force   

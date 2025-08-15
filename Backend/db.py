@@ -25,10 +25,10 @@ def db_define_winner(date):
 
 
 def get_all_events(date):
-    if date == "all_dates":
+    if date == "":
         result = {"events": list(my_col.find()),
                   "winners": list(mydb["winners"].find())}
-        print(result)
+        print("blop")
 
     else:
         result = list(my_col.find({"date": date}))

@@ -4,8 +4,11 @@ import os
 import uuid
 
 from google import genai
-from flask_cors import CORS, cross_origin
-from flask import Flask, jsonify, request
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+
 
 from helper import get_utc_day
 from db import add_event_to_world, get_all_events, get_events_to_vote, increase_vote_db, db_get_dates, db_define_winner
@@ -14,40 +17,52 @@ from imageGenerator import get_photo_id
 os.environ["GEMINI_API_KEY"] = "AIzaSyDCmmQEnq-A1RdP-Nx4BqyCmKgl87_KHXI"
 
 
-app = Flask(__name__)
-cors = CORS(app, resources={r"*": {"origins": "*"}}, methods=["GET", "POST"])
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class Date(BaseModel):
+    event_id: str
 
 
-@app.route("/history/<date>")
-def history(date):
+@app.get("/history/")
+def history(date : str | None = ""):
     all_events = get_all_events(date)
-    return jsonify(json.dumps(all_events))
+    return json.dumps(all_events)
 
-@app.route("/to_vote")
+@app.get("/to_vote")
 def to_vote():
     events_to_vote = get_events_to_vote()
-    return jsonify(json.dumps(events_to_vote))
+    return json.dumps(events_to_vote)
 
-@app.route("/get_dates")
+@app.get("/get_dates")
 def get_dates():
     dates = db_get_dates()
-    return jsonify(json.dumps(dates))
+    return json.dumps(dates)
 
 #should be call at the end of every day
-@app.route("/define_winner/<date>")
+@app.get("/define_winner/<date>")
 def define_winner(date):
     db_define_winner(date)
-    resp = jsonify(success=True)
+    resp = success=True
     return resp
 
 
-@app.route("/increase_vote", methods=["POST"])
-def increase_vote():
-    increase_vote_db(request.json['event_id'])
-    resp = jsonify(success=True)
+class Event(BaseModel):
+    event_id: str
+
+@app.post("/increase_vote")
+def increase_vote(event: Event):
+    increase_vote_db(event.event_id)
+    resp = success=True
     return resp
 
-@app.route("/news/<request_text>")
+@app.get("/news/<request_text>")
 def news(request_text):
     client = genai.Client()
 
@@ -75,6 +90,6 @@ def news(request_text):
 
     asyncio.run(add_event_to_world(json_result))
 
-    return jsonify(full_json)
+    return full_json
 
 
