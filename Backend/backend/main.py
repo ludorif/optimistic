@@ -8,11 +8,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-
-
 from helper import get_utc_day
-from db import add_event_to_world, get_all_events, get_events_to_vote, increase_vote_db, db_get_dates, db_define_winner
-from imageGenerator import get_photo_id
+import db
+from imageGenerator import *
+
 
 os.environ["GEMINI_API_KEY"] = "AIzaSyDCmmQEnq-A1RdP-Nx4BqyCmKgl87_KHXI"
 
@@ -30,45 +29,39 @@ class Date(BaseModel):
     event_id: str
 
 
-@app.get("/history/")
-def history(date : str | None = ""):
-    all_events = get_all_events(date)
-    return json.dumps(all_events)
+@app.get("/events/")
+def get_events(date : str | None = ""):
+    return db.get_events(date)
 
-@app.get("/to_vote")
-def to_vote():
-    events_to_vote = get_events_to_vote()
-    return json.dumps(events_to_vote)
 
-@app.get("/get_dates")
+@app.get("/events/dates")
 def get_dates():
-    dates = db_get_dates()
-    return json.dumps(dates)
+    return db.get_dates()
 
 #should be call at the end of every day
-@app.get("/define_winner/<date>")
-def define_winner(date):
-    db_define_winner(date)
-    resp = success=True
-    return resp
+#@app.put("/events/")
+#def define_winner(date):
+#    db_define_winner(date)
+ #   resp = success=True
+ #   return resp
 
 
 class Event(BaseModel):
     event_id: str
 
-@app.post("/increase_vote")
+@app.put("/events/")
 def increase_vote(event: Event):
-    increase_vote_db(event.event_id)
+    db.increase_vote(event.event_id)
     resp = success=True
     return resp
 
-@app.get("/news/<request_text>")
-def news(request_text):
+@app.post("/events/")
+def news(story : str):
     client = genai.Client()
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=f"Imagine a newspaper's  one sentence article based on this event: \"{request_text}\"."
+        contents=f"Imagine a newspaper's  one sentence article based on this event: \"{story}\"."
                  f"It should be overly optimistic and always climate positive."
                  f"Propose only 1 choice. "
                  f"Return a valid json with the title and the content."
@@ -84,11 +77,10 @@ def news(request_text):
     json_result["date"] =  get_utc_day()
     json_result["votes"] = 0
 
-    print(get_utc_day())
 
     full_json = json.dumps(json_result)
 
-    asyncio.run(add_event_to_world(json_result))
+    asyncio.run(db.add_event_to_world(json_result))
 
     return full_json
 

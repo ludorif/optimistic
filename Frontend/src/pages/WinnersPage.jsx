@@ -14,7 +14,7 @@ function WinnersPage () {
     }
 
     useEffect(()=>{
-        axios.get("history/").then(response => {
+        axios.get("events/").then(response => {
             const obj = JSON.parse(response.data);
 
 

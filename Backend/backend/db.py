@@ -1,5 +1,5 @@
 ﻿import json
-from datetime import datetime, timezone
+
 from helper import get_utc_day
 
 from pymongo import MongoClient
@@ -24,24 +24,20 @@ def db_define_winner(date):
     print("winner: ", winner)
 
 
-def get_all_events(date):
+def get_events(date):
     if date == "":
         result = {"events": list(my_col.find()),
                   "winners": list(mydb["winners"].find())}
-        print("blop")
 
     else:
         result = list(my_col.find({"date": date}))
 
-    return result
+    return json.dumps(result)
 
-def get_events_to_vote():
-    events = my_col.find({"date": get_utc_day()})
-    return list(events)
 
-def db_get_dates():
+def get_dates():
     events = my_col.find({}, {"date": 1, "_id":1}).distinct("date")
-    return list(events)
+    return json.dumps(list(events))
 
 async def add_event_to_world(jsonToAdd):
     try:
@@ -49,7 +45,7 @@ async def add_event_to_world(jsonToAdd):
     except Exception as e:
         print(e)
 
-def increase_vote_db(event_id):
+def increase_vote(event_id):
     try:
         result = my_col.update_one({"_id": event_id}, {"$inc": {"votes": 1}})
         print(result.modified_count)

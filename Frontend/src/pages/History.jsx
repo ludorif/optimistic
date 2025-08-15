@@ -11,7 +11,7 @@ const History = () => {
 
     useEffect(
         ()=>{
-            axios.get('get_dates')
+            axios.get('events/dates')
                 .then(response => {
 
                     const obj = JSON.parse(response.data);
@@ -40,7 +40,7 @@ const History = () => {
     )
 
     function UpdateHistory(selectedDate) {
-        axios.get(`history/?date=${selectedDate}`)
+        axios.get(`events/?date=${selectedDate}`)
             .then(response => {
                 const obj = JSON.parse(response.data);
                 console.log(obj[0].photoId);

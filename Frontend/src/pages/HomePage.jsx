@@ -23,7 +23,7 @@ class App extends React.Component {
 
 
     handleTextChange = () => {
-        axios.get('news/'+this.state.username)
+        axios.post('events/?story='+this.state.username)
             .then(response => {
 
                 const obj = JSON.parse(response.data);
