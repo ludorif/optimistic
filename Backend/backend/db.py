@@ -39,9 +39,9 @@ def get_dates():
     events = my_col.find({}, {"date": 1, "_id":1}).distinct("date")
     return json.dumps(list(events))
 
-async def add_event_to_world(jsonToAdd):
+async def add_event_to_world(json_to_add):
     try:
-        my_col.insert_one(jsonToAdd)
+        my_col.insert_one(json_to_add)
     except Exception as e:
         print(e)
 
