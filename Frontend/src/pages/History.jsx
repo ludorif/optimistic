@@ -1,93 +1,51 @@
-﻿import HistoryPart from "../components/HistoryPart.jsx";
+﻿import OpEvent from "../components/OpEvent.jsx";
 import React, {useEffect, useState} from "react";
+import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
-
 
 
 const History = () => {
     const [dates, setDates] = useState(null)
     const [historyPerDate, setHistoryPerDate] = useState(null)
-    const [currentSelectedDate, setCurrentSelectedDate] = useState(null)
 
     useEffect(
         ()=>{
-            axios.get('events/dates')
-                .then(response => {
-
-                    const obj = JSON.parse(response.data);
-
-                    const localDates =[]
-                    obj.forEach(
-                        item => {
-                            console.log(item);
-                            localDates.push(item)
-
-                        }
-                    )
-
-
-                    const localDatesMap = localDates.map(item => (
-                        <option key={self.crypto.randomUUID()} value={item}>{item}</option>));
-                    setDates(localDatesMap)
-
-                    UpdateHistory(localDates[0])
-
-                })
-                .catch(error => {
-                    console.error('There was an error!', error);
-                });
+            ExecuteRequest(axios.get('events/dates'), UpdateDates);
         }, []
     )
 
-    function UpdateHistory(selectedDate) {
-        axios.get(`events/?date=${selectedDate}`)
-            .then(response => {
-                const obj = JSON.parse(response.data);
-                console.log(obj[0].photoId);
+    function UpdateDates(datesArray) {
+       const datesMap = datesArray.map(item =>
+            <option key={self.crypto.randomUUID()} value={item}>{item}</option>);
 
-                const lines =[]
-                obj.forEach(
-                    item => {
-                        lines.push(item)
-                    }
-                )
-
-                const historyPerDate = lines.map(item => (
-                    <HistoryPart key={item._id} title={item.title} content={item.content} photoId={item.photoId}></HistoryPart>));
-                setHistoryPerDate(historyPerDate)
-
-
-
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
+        setDates(datesMap)
+        dateChanged(datesArray[0])
     }
 
-    function DefineWinner() {
-        axios.get(`define_winner/${currentSelectedDate}`)
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
+    function UpdateHistory(eventsArray)
+    {
+        const eventsMap = eventsArray.map(item =>
+            (<OpEvent key={item._id} title={item.title} content={item.content} photoId={item.photoId}></OpEvent>));
+        setHistoryPerDate(eventsMap);
     }
 
-    function dateChanged(newDate) {
-        newDate = newDate.target.value;
-        setCurrentSelectedDate(newDate);
-        UpdateHistory(newDate);
+    function dateChanged(newDate)
+    {
+        if (!(typeof newDate === 'string' || newDate instanceof String))
+        {
+            newDate = newDate.target.value;
+        }
+
+        ExecuteRequest(axios.get(`events/?date=${newDate}`), UpdateHistory);
     }
 
     return <div>
-        <button onClick={DefineWinner}> DefineWinner</button>
         <br/>
         <select name="dateSelector" id="dateSelector" onChange={dateChanged}>
             {dates}
         </select>
-        <ul>{historyPerDate}</ul>;
-    </div>;
+        <ul>{historyPerDate}</ul>
+    </div>
 };
 
 export default History;

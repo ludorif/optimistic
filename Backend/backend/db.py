@@ -1,18 +1,15 @@
 ﻿import json
-
-from helper import get_utc_day
-
 from pymongo import MongoClient
 
 uri = "mongodb+srv://testuser:hgGWCIOcm1z7X9zM@cluster0.zrojvuw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-my_client = MongoClient(uri)
-mydb = my_client["optimistic"]
-my_col = mydb["memory"]
-
+mongo_client = MongoClient(uri)
+optimistic_db = mongo_client["optimistic"]
+events_column = optimistic_db["memory"]
+winners_column = optimistic_db["winners"]
 
 def db_define_winner(date):
-    events_of_date = my_col.find({"date": date})
+    events_of_date = events_column.find({"date": date})
 
     winner = events_of_date[0]
 
@@ -20,34 +17,35 @@ def db_define_winner(date):
         if event["votes"] > winner["votes"]:
             winner = event
 
-    mydb["winners"].insert_one(winner)
-    print("winner: ", winner)
+    winners_column.insert_one(winner)
 
 
 def get_events(date):
     if date == "":
-        result = {"events": list(my_col.find()),
-                  "winners": list(mydb["winners"].find())}
-
+        result = list(events_column.find())
     else:
-        result = list(my_col.find({"date": date}))
+        result = list(events_column.find({"date": date}))
 
+    return json.dumps(result)
+
+def get_winners():
+    result = list(winners_column.find())
     return json.dumps(result)
 
 
 def get_dates():
-    events = my_col.find({}, {"date": 1, "_id":1}).distinct("date")
+    events = events_column.find({}, {"date": 1, "_id":1}).distinct("date")
     return json.dumps(list(events))
 
 async def add_event_to_world(json_to_add):
     try:
-        my_col.insert_one(json_to_add)
+        events_column.insert_one(json_to_add)
     except Exception as e:
         print(e)
 
 def increase_vote(event_id):
     try:
-        result = my_col.update_one({"_id": event_id}, {"$inc": {"votes": 1}})
+        result = events_column.update_one({"_id": event_id}, {"$inc": {"votes": 1}})
         print(result.modified_count)
     except Exception as e:
         print(e)

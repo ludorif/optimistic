@@ -1,60 +1,41 @@
-﻿import HistoryPart from "../components/HistoryPart.jsx";
-import React, {useEffect, useState} from "react";
+﻿import React, {useEffect, useState} from "react";
 import axios from "axios";
-import EventToVote from "../components/EventToVote.jsx";
+import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
 import styles from '../css/mystyle.module.css'
+import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
 
 
 
 const ToVotePage = () => {
-    const [renderAnimals, setState] = useState(null)
+    const [eventsToVoteOn, setEventsToVoteOn] = useState(null)
     const [toRefresh, setToRefresh] = useState(0);
 
-
-
-    function Test(id){
-        console.log(id)
-        axios.put('events', {event_id:id}).then(
-            () => setToRefresh(toRefresh + 1)
-        ).catch(
-            error => {console.error('There was an error!', error);}
-        )
-    }
-
     useEffect(() => {
-
-        const todayDate = new Date()
-        console.log()
-        const month = todayDate.getUTCMonth()+1;
-        const todayDateStr =  todayDate.getUTCFullYear() + '-' + month.toString().padStart(2, "0") + '-' + (todayDate.getUTCDate());
-        console.log(todayDateStr)
-        axios.get(`events/?date=${todayDateStr}`)
-            .then(response => {
-                const obj = JSON.parse(response.data);
-
-                const lines = []
-                obj.forEach(
-                    item => {
-                        lines.push(item)
-                    }
-                )
-
-                const renderAnimals = lines.map(item => (
-                    <EventToVote key={item._id} title={item.title} content={item.content}
-                                 photoId={item.photoId} voteCount={item.votes}
-                                 onclickFunction={() => Test(item._id)}
-                    ></EventToVote>));
-                setState(renderAnimals)
-
-
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
+        ExecuteRequest(axios.get(`events/?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
+    function ForceRefresh() {
+        setToRefresh(toRefresh + 1)
+    }
+
+    function VoteFor(eventId){
+        ExecuteRequest(axios.put('events', {event_id:eventId}), ForceRefresh);
+    }
+
+    function UpdateEventsToVoteOn(eventsArray)
+    {
+        const eventsMap = eventsArray.map(item => (
+            <OpEventToVoteOn key={item._id} title={item.title} content={item.content}
+                             photoId={item.photoId} voteCount={item.votes}
+                             onclickFunction={() => VoteFor(item._id)}
+            ></OpEventToVoteOn>));
+        setEventsToVoteOn(eventsMap)
+    }
+
+
+
     return <div >
-        <ul className={styles.customUl}>{renderAnimals}</ul>
+        <ul className={styles.customUl}>{eventsToVoteOn}</ul>
 
     </div>;
 };

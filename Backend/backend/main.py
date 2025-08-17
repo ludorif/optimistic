@@ -7,7 +7,7 @@ import open_ai_manager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,6 +15,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/winners/")
+def get_winners():
+    return db.get_winners()
 
 @app.get("/events/")
 def get_events(date : str | None = ""):

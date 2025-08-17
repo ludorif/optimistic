@@ -1,65 +1,53 @@
 ﻿import React, {useEffect, useState} from "react";
 import axios from "axios";
-import EventToVote from "../components/EventToVote.jsx";
-import WinnerPart from "../components/WinnerPart.jsx";
+import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
+import OpWinnerEvent from "../components/OpWinnerEvent.jsx";
 import styles from "../css/mystyle.module.css";
+import ExecuteRequest from "../AxiosManager.jsx";
 
 function WinnersPage () {
-
+    const [allEvents, setAllEvents] = useState([])
     const [winners, setWinners] = useState([])
 
+    function UpdateWinners(winnersArray) {
+        console.log(winnersArray);
+        setWinners(winnersArray);
+        ExecuteRequest(axios.get("events/"), UpdateAllEvents);
+    }
 
-    function ChangeStyleForWinner(){
+    function UpdateAllEvents(eventsArray) {
+        let localAllEvents = []
+        let line =[];
+        let date =Date.parse(eventsArray[0].date);
 
+        eventsArray.forEach(
+            function(event) {
+                if (Date.parse(event.date) > date) {
+                    date = Date.parse(event.date);
+                    localAllEvents.push(<ul key={self.crypto.randomUUID()} className={styles.customUl}>{line}</ul>);
+                    line = []
+                }
+
+                const isWinner = winners.find((item) => item._id === event._id);
+
+                const style = isWinner ? styles.customDiv : null;
+
+                line.push(<li key={self.crypto.randomUUID()}><OpWinnerEvent key={event._id} title={event.title} content={event.content}
+                                              photoId={event.photoId} voteCount={event.votes} style={style}
+                ></OpWinnerEvent></li>);
+            });
+
+        localAllEvents.push(<ul className={styles.customUl}>{line}</ul>);
+        setAllEvents(localAllEvents)
     }
 
     useEffect(()=>{
-        axios.get("events/").then(response => {
-            const obj = JSON.parse(response.data);
-
-
-            const events =[]
-            obj.events.forEach(
-                item => {
-                    events.push(item)
-                }
-            )
-
-
-
-            let local = []
-            let test =[];
-            let date =Date.parse(events[0].date);
-
-
-            events.forEach(function(event) {
-
-                if( Date.parse(event.date) > date){
-                    date = Date.parse(event.date);
-                    test.push(<ul className={styles.customUl}>{local}</ul>);
-                    local = []
-                }
-
-                const style =  (obj.winners.find((item) => item._id === event._id)) ? styles.customDiv : null;
-
-                local.push(<li> <WinnerPart key={event._id} title={event.title} content={event.content}
-                                       photoId={event.photoId} voteCount={event.votes}  style={style}
-                ></WinnerPart></li>);
-            });
-
-            test.push(<ul className={styles.customUl}>{local}</ul>);
-            setWinners(test)
-
-
-        }).catch(
-            err => {console.log(err)}
-        )
-
+        ExecuteRequest(axios.get("winners/"), UpdateWinners);
     },[])
 
     return (
-        <div>
-            {winners}
+        <div key={self.crypto.randomUUID()}>
+            {allEvents}
         </div>
     );
 }
