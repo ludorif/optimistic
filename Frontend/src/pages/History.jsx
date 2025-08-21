@@ -1,49 +1,65 @@
 ﻿import OpEvent from "../components/OpEvent.jsx";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
+import Grid from "@mui/material/Grid";
 
 
 const History = () => {
     const [dates, setDates] = useState(null)
     const [historyPerDate, setHistoryPerDate] = useState(null)
+    const [selectedDate, setSelectedDate] = useState("");
 
-    useEffect(
-        ()=>{
-            ExecuteRequest(axios.get('events/dates'), UpdateDates);
-        }, []
-    )
+
+
+    useEffect(() => {
+        ExecuteRequest(axios.get('events/dates'), UpdateDates);
+
+        const savedDate = localStorage.getItem('selectedDate');
+        if (savedDate) {
+            setSelectedDate(savedDate);
+        }
+
+    }, []);
+
 
     function UpdateDates(datesArray) {
        const datesMap = datesArray.map((item, index) => <option key={index} value={item}>{item}</option>);
 
         setDates(datesMap)
-        dateChanged(datesArray[0])
+        const savedDate = localStorage.getItem('selectedDate') || datesArray[0];
+        setSelectedDate(savedDate);
+        OnDateChanged(savedDate);
     }
 
     function UpdateHistory(eventsArray)
     {
         const eventsMap = eventsArray.map(item =>
-            (<OpEvent key={item._id} title={item.title} content={item.content} photoId={item.photoId}></OpEvent>));
+            (
+                <Grid key={item._id} size={4}>
+                    <OpEvent key={item._id} title={item.title} content={item.content} photoId={item.photoId}></OpEvent>
+                </Grid>
+                ));
         setHistoryPerDate(eventsMap);
     }
 
-    function dateChanged(newDate)
+    function OnDateChanged(newDate)
     {
-        if (!(typeof newDate === 'string' || newDate instanceof String))
-        {
-            newDate = newDate.target.value;
-        }
+        localStorage.setItem('selectedDate', newDate);
+        setSelectedDate(newDate);
+
 
         ExecuteRequest(axios.get(`events/?date=${newDate}`), UpdateHistory);
     }
 
     return <div>
         <br/>
-        <select name="dateSelector" id="dateSelector" onChange={dateChanged}>
+        <select name="dateSelector" id="dateSelector"
+                value={selectedDate}
+                onChange={(e) => OnDateChanged(e.target.value)} >
             {dates}
         </select>
-        <ul>{historyPerDate}</ul>
+        <Grid container spacing={4} justifyContent="center" alignItems="center">{historyPerDate}</Grid>
     </div>
 };
 
