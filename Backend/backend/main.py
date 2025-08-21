@@ -4,7 +4,7 @@ import json
 import db
 import model
 import open_ai_manager
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(redirect_slashes=False)
@@ -29,16 +29,15 @@ def get_dates():
     return db.get_dates()
 
 @app.post("/events/")
-def news(story : str):
+def news(story : str, response: Response):
     response_dict = open_ai_manager.generate_new_event(story)
     asyncio.run(db.add_event_to_world(response_dict))
-    return json.dumps(response_dict)
+    response.status_code = status.HTTP_201_CREATED
 
 @app.put("/events/")
-def increase_vote(event: model.Event):
+def increase_vote(event: model.Event, response: Response):
     db.increase_vote(event.event_id)
-    resp = success=True
-    return resp
+    response.status_code = status.HTTP_200_OK
 
 
 #should be call at the end of every day

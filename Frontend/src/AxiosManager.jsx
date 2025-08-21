@@ -1,8 +1,14 @@
 ﻿export default function ExecuteRequest(promise, ResultFunction) {
     promise
         .then(response => {
-            if(ResultFunction == null)
+            if(ResultFunction === null)
             {
+                return;
+            }
+
+            if(response.data === null)
+            {
+                ResultFunction()
                 return;
             }
 
