@@ -15,8 +15,7 @@ const History = () => {
     )
 
     function UpdateDates(datesArray) {
-       const datesMap = datesArray.map(item =>
-            <option key={self.crypto.randomUUID()} value={item}>{item}</option>);
+       const datesMap = datesArray.map((item, index) => <option key={index} value={item}>{item}</option>);
 
         setDates(datesMap)
         dateChanged(datesArray[0])

@@ -10,34 +10,45 @@ function WinnersPage () {
     const [winners, setWinners] = useState([])
 
     function UpdateWinners(winnersArray) {
-        console.log(winnersArray);
         setWinners(winnersArray);
-        ExecuteRequest(axios.get("events/"), UpdateAllEvents);
+    }
+
+    function GenerateNewOpEvent(event) {
+        const isWinner = winners.find((item) => item._id === event._id) != null;
+
+        const style = isWinner ? styles.customDiv : null;
+
+        return <li key={event._id}>
+            <OpWinnerEvent key={event._id} title={event.title} content={event.content}
+                           photoId={event.photoId} voteCount={event.votes} style={style}>
+            </OpWinnerEvent>
+        </li>
+    }
+
+    function GenerateNewLine(lineContent, lineIndex) {
+    return <ul key={lineIndex} className={styles.customUl}>{lineContent}</ul>
     }
 
     function UpdateAllEvents(eventsArray) {
         let localAllEvents = []
-        let line =[];
-        let date =Date.parse(eventsArray[0].date);
+        let lineContent = [];
+        let date = Date.parse(eventsArray[0].date);
+        let lineIndex = 0;
 
-        eventsArray.forEach(
-            function(event) {
-                if (Date.parse(event.date) > date) {
-                    date = Date.parse(event.date);
-                    localAllEvents.push(<ul key={self.crypto.randomUUID()} className={styles.customUl}>{line}</ul>);
-                    line = []
-                }
+        for (let event of eventsArray) {
+            const parsedDate = Date.parse(event.date)
+            if (parsedDate > date)
+            {
+                localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
+                date = parsedDate;
+                lineContent = []
+                ++ lineIndex;
+            }
 
-                const isWinner = winners.find((item) => item._id === event._id);
+            lineContent.push(GenerateNewOpEvent(event));
+        }
 
-                const style = isWinner ? styles.customDiv : null;
-
-                line.push(<li key={self.crypto.randomUUID()}><OpWinnerEvent key={event._id} title={event.title} content={event.content}
-                                              photoId={event.photoId} voteCount={event.votes} style={style}
-                ></OpWinnerEvent></li>);
-            });
-
-        localAllEvents.push(<ul className={styles.customUl}>{line}</ul>);
+        localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
         setAllEvents(localAllEvents)
     }
 
@@ -45,8 +56,16 @@ function WinnersPage () {
         ExecuteRequest(axios.get("winners/"), UpdateWinners);
     },[])
 
+    useEffect(() => {
+        if(winners.length === 0){
+            return;
+        }
+        ExecuteRequest(axios.get("events/"), UpdateAllEvents);
+        }, [winners])
+
+
     return (
-        <div key={self.crypto.randomUUID()}>
+        <div >
             {allEvents}
         </div>
     );
