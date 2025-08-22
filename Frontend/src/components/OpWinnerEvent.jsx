@@ -1,6 +1,5 @@
 ﻿import React from "react";
 import OpEvent from "./OpEvent.jsx";
-import Grid from "@mui/material/Grid";
 import {ArcherElement} from "react-archer";
 
 export default function  OpWinnerEvent ({event,  count, isWinner}) {
