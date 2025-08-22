@@ -16,9 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/winners/")
-def get_winners():
-    return db.get_winners()
+
 
 @app.get("/events/")
 def get_events(date : str | None = ""):
@@ -39,10 +37,12 @@ def increase_vote(event: model.Event, response: Response):
     db.increase_vote(event.event_id)
     response.status_code = status.HTTP_200_OK
 
+@app.get("/winners/")
+def get_winners():
+    return db.get_winners()
 
 #should be call at the end of every day
-#@app.put("/events/")
-#def define_winner(date):
-#    db_define_winner(date)
- #   resp = success=True
- #   return resp
+@app.put("/winners/")
+def define_winner(date : model.Date, response: Response):
+    db.define_winner(date.selectedDate)
+    response.status_code = status.HTTP_200_OK

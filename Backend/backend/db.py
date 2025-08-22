@@ -8,16 +8,7 @@ optimistic_db = mongo_client["optimistic"]
 events_column = optimistic_db["memory"]
 winners_column = optimistic_db["winners"]
 
-def db_define_winner(date):
-    events_of_date = events_column.find({"date": date})
 
-    winner = events_of_date[0]
-
-    for event in events_of_date:
-        if event["votes"] > winner["votes"]:
-            winner = event
-
-    winners_column.insert_one(winner)
 
 
 def get_events(date):
@@ -28,9 +19,7 @@ def get_events(date):
 
     return json.dumps(result)
 
-def get_winners():
-    result = list(winners_column.find())
-    return json.dumps(result)
+
 
 
 def get_dates():
@@ -49,3 +38,18 @@ def increase_vote(event_id):
         print(result.modified_count)
     except Exception as e:
         print(e)
+
+def get_winners():
+    result = list(winners_column.find())
+    return json.dumps(result)
+
+def define_winner(date):
+    events_of_date = events_column.find({"date": date})
+
+    winner = events_of_date[0]
+
+    for event in events_of_date:
+        if event["votes"] > winner["votes"]:
+            winner = event
+
+    winners_column.insert_one(winner)

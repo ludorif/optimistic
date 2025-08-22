@@ -4,6 +4,7 @@ import OpWinnerEvent from "../components/OpWinnerEvent.jsx";
 import styles from "../css/mystyle.module.css";
 import ExecuteRequest from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
+import Xarrow from "react-xarrows";
 import { ArcherContainer, ArcherElement } from 'react-archer';
 
 
@@ -22,16 +23,17 @@ function WinnersPage () {
     function GenerateNewOpEvent(event) {
         const isWinner = winners.find((item) => item._id === event._id) != null;
 
-        //if (isWinner) {
-            ++count;
-        //}
 
-        return <OpWinnerEvent key={event._id} event={event} isWinner={isWinner} count={count.toString()}></OpWinnerEvent>;
+        if (isWinner) {
+            ++count;
+        }
+
+        return <OpWinnerEvent  key={event._id} event={event}  count={count} isWinner={isWinner}></OpWinnerEvent>;
 
     }
 
     function GenerateNewLine(lineContent, lineIndex) {
-        return <Grid ref={itemsRef} size={4} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
+    return <Grid ref={itemsRef} size={4} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
     }
 
     function UpdateAllEvents(eventsArray) {
@@ -42,11 +44,12 @@ function WinnersPage () {
 
         for (let event of eventsArray) {
             const parsedDate = Date.parse(event.date)
-            if (parsedDate > date) {
+            if (parsedDate > date)
+            {
                 localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
                 date = parsedDate;
                 lineContent = []
-                ++lineIndex;
+                ++ lineIndex;
             }
 
             lineContent.push(GenerateNewOpEvent(event));
@@ -56,36 +59,22 @@ function WinnersPage () {
         setAllEvents(localAllEvents)
     }
 
-    useEffect(() => {
+    useEffect(()=>{
         ExecuteRequest(axios.get("winners/"), UpdateWinners);
-    }, [])
+    },[])
 
     useEffect(() => {
-        if (winners.length === 0) {
+        if(winners.length === 0){
             return;
         }
         ExecuteRequest(axios.get("events/"), UpdateAllEvents);
-    }, [winners])
+        }, [winners])
 
 
     return (
-        <div>
+        <div >
             <ArcherContainer strokeColor="red">
-                {allEvents}
-
-                <ArcherElement
-                    id="element4"
-                    relations={[
-                        {
-                            targetId: '1',
-                            targetAnchor: 'right',
-                            sourceAnchor: 'left',
-                            label: 'Arrow 3',
-                        },
-                    ]}
-                >
-                    <div>Element 4</div>
-                </ArcherElement>
+            {allEvents}
             </ArcherContainer>
         </div>
 

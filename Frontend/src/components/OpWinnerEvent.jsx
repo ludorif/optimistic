@@ -3,26 +3,28 @@ import OpEvent from "./OpEvent.jsx";
 import Grid from "@mui/material/Grid";
 import {ArcherElement} from "react-archer";
 
-export default function  OpWinnerEvent ({event, isWinner, count}) {
-    if (isWinner) {
-        console.log(count);
-        return (
-            <div >
-            <ArcherElement id={count}>
-                    <OpEvent event={event}>
-                    </OpEvent>
-            </ArcherElement>
-            </div>
-        );
-    } else {
+export default function  OpWinnerEvent ({event,  count, isWinner}) {
+    let element = <div>
+        <OpEvent event={event}>
+        </OpEvent>
+    </div>
 
+    if (isWinner) {
+        const nextWinner = (count + 1);
+        console.log(nextWinner);
         return (
-                <div >
-                    <ArcherElement id={count}>
-                    <OpEvent event={event}>
-                    </OpEvent>
-                    </ArcherElement>
-                </div>
+            <ArcherElement id={count.toString()}
+                           relations={[
+                               {
+                                   targetId: nextWinner,
+                                   targetAnchor: 'middle',
+                                   sourceAnchor: 'middle',
+                               },
+                           ]}>
+                {element}
+            </ArcherElement>
         );
     }
+
+    return element;
 }

@@ -43,10 +43,13 @@ const ToVotePage = () => {
     }
 
 
+
+
     return <div>
         <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>
         <input onChange={OnTextChanged}/>
         <button onClick={OnSubmitPressed}>Propose new event</button>
+
     </div>;
 };
 

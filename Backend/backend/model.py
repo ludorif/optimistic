@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class Date(BaseModel):
-    event_id: str
+    selectedDate: str
 
 class Event(BaseModel):
     event_id: str
