@@ -8,5 +8,4 @@ COPY .. .
 
 EXPOSE 5001
 
-
-CMD [ "fastapi", "dev", "backend/main.py", "--port", "5001", "--host=0.0.0.0"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "5001", "--reload"]

@@ -2,8 +2,8 @@ import uuid
 import json
 import os
 from google import genai
-from helper import get_utc_day
-from pexels_manager import *
+from backend import helper
+from backend import pexels_manager
 
 os.environ["GEMINI_API_KEY"] = "AIzaSyDCmmQEnq-A1RdP-Nx4BqyCmKgl87_KHXI"
 
@@ -25,7 +25,7 @@ def generate_new_event(story : str):
     response_dict = json.loads(response_formatted)
     response_dict["_id"] = str(uuid.uuid4())
     response_dict["photoId"] = get_photo_id(response_dict["title"])
-    response_dict["date"] =  get_utc_day()
+    response_dict["date"] =  herlper.get_utc_day()
     response_dict["votes"] = 0
 
     return  response_dict

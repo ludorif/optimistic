@@ -1,9 +1,8 @@
 ﻿import asyncio
-import json
 
-import db
-import model
-import open_ai_manager
+from backend import db
+from backend import model
+from backend import open_ai_manager
 from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
