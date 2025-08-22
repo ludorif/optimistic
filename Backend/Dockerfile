@@ -1,10 +1,11 @@
-FROM python:3
+FROM python:3.13-slim
 
-COPY requirements.txt /requirements.txt
+WORKDIR /app
 
-RUN pip install -r /requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r ./requirements.txt
 
-COPY .. .
+COPY backend ./backend
 
 EXPOSE 5001
 
