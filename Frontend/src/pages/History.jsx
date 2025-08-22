@@ -1,5 +1,5 @@
 ﻿import OpEvent from "../components/OpEvent.jsx";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
@@ -32,14 +32,13 @@ const History = () => {
         OnDateChanged(savedDate);
     }
 
-    function UpdateHistory(eventsArray)
-    {
+    function UpdateHistory(eventsArray) {
         const eventsMap = eventsArray.map(item =>
             (
-                <Grid key={item._id} size={4}>
-                    <OpEvent key={item._id} title={item.title} content={item.content} photoId={item.photoId}></OpEvent>
+                <Grid size={4}>
+                    <OpEvent key={item._id} event={item}></OpEvent>
                 </Grid>
-                ));
+            ));
         setHistoryPerDate(eventsMap);
     }
 

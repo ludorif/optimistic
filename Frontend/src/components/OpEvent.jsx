@@ -1,5 +1,6 @@
 ﻿import React from "react";
 import styled from "styled-components";
+import Grid from "@mui/material/Grid";
 
 const Image = styled.img`
     width: 300px;
@@ -9,12 +10,14 @@ const Image = styled.img`
 `;
 
 
-export default function  OpEvent ({title, content, photoId}) {
-    return ( 
+export default function  OpEvent ({event}) {
+    return (
         <>
-        <h2>{title}</h2>
-        <p>{content} </p>
-        <Image  src={`https://images.pexels.com/photos/${photoId}/pexels-photo-${photoId}.jpeg`}/>
+            <div style={{ height:200}}>
+                <h2>{event.title}</h2>
+                <p>{event.content} </p>
+            </div>
+            <Image src={`https://images.pexels.com/photos/${event.photoId}/pexels-photo-${event.photoId}.jpeg`}/>
         </>
     )
 }

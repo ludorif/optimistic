@@ -1,8 +1,8 @@
 ﻿import React, {useEffect, useState} from "react";
 import axios from "axios";
 import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
-import styles from '../css/mystyle.module.css'
 import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
+import Grid from "@mui/material/Grid";
 
 
 
@@ -25,10 +25,12 @@ const ToVotePage = () => {
 
     function UpdateEventsToVoteOn(eventsArray) {
         const eventsMap = eventsArray.map(item => (
-            <OpEventToVoteOn key={item._id} title={item.title} content={item.content}
-                             photoId={item.photoId} voteCount={item.votes}
-                             onclickFunction={() => VoteFor(item._id)}
-            ></OpEventToVoteOn>));
+                <OpEventToVoteOn
+                    key={item._id}
+                    event = {item}
+                    onclickFunction={() => VoteFor(item._id)}>
+                </OpEventToVoteOn>
+            ));
         setEventsToVoteOn(eventsMap)
     }
 
@@ -42,7 +44,7 @@ const ToVotePage = () => {
 
 
     return <div>
-        <ul >{eventsToVoteOn}</ul>
+        <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>
         <input onChange={OnTextChanged}/>
         <button onClick={OnSubmitPressed}>Propose new event</button>
     </div>;

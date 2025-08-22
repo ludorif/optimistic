@@ -1,32 +1,31 @@
 ﻿import React from 'react'
 import '../App.css'
-import Grid from '@mui/material/Grid';
-import styled from "styled-components";
-import {Paper} from "@mui/material";
+import {ArcherContainer, ArcherElement} from "react-archer";
 
-const HomePage = () =>{
-    const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: '#fff',
-        textAlign: 'center'
-    }));
+const HomePage = () => {
 
     return (
         <div>
-            <p> List of worlds swipe</p>
-            <Grid container spacing={2}>
-                <Grid size={8}>
-                    <Item>size=8</Item>
-                </Grid>
-                <Grid size={4}>
-                    <Item>size=4</Item>
-                </Grid>
-                <Grid size={4}>
-                    <Item>size=4</Item>
-                </Grid>
-                <Grid size={8}>
-                    <Item>size=8</Item>
-                </Grid>
-            </Grid>
+
+            <ArcherContainer strokeColor="red">
+                <ArcherElement id="root">
+                    <p> List of worlds swipe</p>
+                </ArcherElement>
+                <br/>
+                <ArcherElement
+                    id="element4"
+                    relations={[
+                        {
+                            targetId: 'root',
+                            targetAnchor: 'right',
+                            sourceAnchor: 'left',
+                            label: 'Arrow 3',
+                        },
+                    ]}
+                >
+                    <div>Element 4</div>
+                </ArcherElement>
+            </ArcherContainer>
         </div>);
 }
 

@@ -1,13 +1,15 @@
 ﻿import React from "react";
 import OpEvent from "./OpEvent.jsx";
+import Grid from "@mui/material/Grid";
 
-export default function  OpEventToVoteOn ({title, content, photoId, voteCount, onclickFunction}) {
+export default function  OpEventToVoteOn ({event, onclickFunction}) {
 
     return (
-        <button onClick={onclickFunction}>
-            <OpEvent title = {title} content = {content} photoId = {photoId}>
-            </OpEvent>
-            <p>voteCount: {voteCount} </p>
-        </button>
+        <Grid  size={4}   >
+            <button onClick={onclickFunction} >
+                <p>voteCount: {event.votes} </p>
+                <OpEvent event={event} />
+            </button>
+        </Grid>
     );
 }

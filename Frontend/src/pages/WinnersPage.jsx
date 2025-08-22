@@ -1,13 +1,19 @@
-﻿import React, {useEffect, useState} from "react";
+﻿import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
-import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
 import OpWinnerEvent from "../components/OpWinnerEvent.jsx";
 import styles from "../css/mystyle.module.css";
 import ExecuteRequest from "../AxiosManager.jsx";
+import Grid from "@mui/material/Grid";
+import { ArcherContainer, ArcherElement } from 'react-archer';
+
+
+
 
 function WinnersPage () {
     const [allEvents, setAllEvents] = useState([])
     const [winners, setWinners] = useState([])
+    const itemsRef = useRef(null);
+    let count = 0;
 
     function UpdateWinners(winnersArray) {
         setWinners(winnersArray);
@@ -16,17 +22,16 @@ function WinnersPage () {
     function GenerateNewOpEvent(event) {
         const isWinner = winners.find((item) => item._id === event._id) != null;
 
-        const style = isWinner ? styles.customDiv : null;
+        //if (isWinner) {
+            ++count;
+        //}
 
-        return <li key={event._id}>
-            <OpWinnerEvent key={event._id} title={event.title} content={event.content}
-                           photoId={event.photoId} voteCount={event.votes} style={style}>
-            </OpWinnerEvent>
-        </li>
+        return <OpWinnerEvent key={event._id} event={event} isWinner={isWinner} count={count.toString()}></OpWinnerEvent>;
+
     }
 
     function GenerateNewLine(lineContent, lineIndex) {
-    return <ul key={lineIndex} className={styles.customUl}>{lineContent}</ul>
+        return <Grid ref={itemsRef} size={4} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
     }
 
     function UpdateAllEvents(eventsArray) {
@@ -37,12 +42,11 @@ function WinnersPage () {
 
         for (let event of eventsArray) {
             const parsedDate = Date.parse(event.date)
-            if (parsedDate > date)
-            {
+            if (parsedDate > date) {
                 localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
                 date = parsedDate;
                 lineContent = []
-                ++ lineIndex;
+                ++lineIndex;
             }
 
             lineContent.push(GenerateNewOpEvent(event));
@@ -52,22 +56,39 @@ function WinnersPage () {
         setAllEvents(localAllEvents)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         ExecuteRequest(axios.get("winners/"), UpdateWinners);
-    },[])
+    }, [])
 
     useEffect(() => {
-        if(winners.length === 0){
+        if (winners.length === 0) {
             return;
         }
         ExecuteRequest(axios.get("events/"), UpdateAllEvents);
-        }, [winners])
+    }, [winners])
 
 
     return (
-        <div >
-            {allEvents}
+        <div>
+            <ArcherContainer strokeColor="red">
+                {allEvents}
+
+                <ArcherElement
+                    id="element4"
+                    relations={[
+                        {
+                            targetId: '1',
+                            targetAnchor: 'right',
+                            sourceAnchor: 'left',
+                            label: 'Arrow 3',
+                        },
+                    ]}
+                >
+                    <div>Element 4</div>
+                </ArcherElement>
+            </ArcherContainer>
         </div>
+
     );
 }
 

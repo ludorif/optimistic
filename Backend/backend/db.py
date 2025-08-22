@@ -1,5 +1,5 @@
 ﻿import json
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING, DESCENDING
 
 uri = "mongodb+srv://testuser:hgGWCIOcm1z7X9zM@cluster0.zrojvuw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
@@ -24,7 +24,7 @@ def get_events(date):
     if date == "":
         result = list(events_column.find())
     else:
-        result = list(events_column.find({"date": date}))
+        result = list(events_column.find({"date": date}).sort('votes', DESCENDING))
 
     return json.dumps(result)
 
