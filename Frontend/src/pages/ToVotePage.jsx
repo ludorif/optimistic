@@ -3,6 +3,7 @@ import axios from "axios";
 import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
 import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
+import {colors} from "@mui/material";
 
 
 
@@ -31,6 +32,7 @@ const ToVotePage = () => {
                     onclickFunction={() => VoteFor(item._id)}>
                 </OpEventToVoteOn>
             ));
+
         setEventsToVoteOn(eventsMap)
     }
 
@@ -42,14 +44,23 @@ const ToVotePage = () => {
         ExecuteRequest(axios.post('events/?story=' + newEventText), ForceRefresh)
     }
 
+    const GetProposeNewEventButtonOrError = () => {
 
+        const enoughEvents = eventsToVoteOn != null && eventsToVoteOn.length >= 6;
+
+        return enoughEvents ?
+            <p color="red"> Max events for today</p> :
+            <>
+                <input onChange={OnTextChanged}/>
+                <button onClick={OnSubmitPressed}>Propose new event</button>
+            </>
+    }
 
 
     return <div>
-        <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>
-        <input onChange={OnTextChanged}/>
-        <button onClick={OnSubmitPressed}>Propose new event</button>
 
+        {GetProposeNewEventButtonOrError()}
+        <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>
     </div>;
 };
 
