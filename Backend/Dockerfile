@@ -1,10 +1,12 @@
 FROM python:3
 
-WORKDIR /optimistic-docker
+COPY requirements.txt /requirements.txt
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r /requirements.txt
+
+COPY . /app
+WORKDIR /app
 
 COPY .. .
 
-CMD [ "python3", "-m" , "flask", "--app", "Main", "run", "--debug", "--host=0.0.0.0"]
+CMD [ "python", "-m" , "flask", "--app", "Main", "run", "--debug", "--host=0.0.0.0"]
