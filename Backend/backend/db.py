@@ -1,5 +1,6 @@
 ﻿import json
 from pymongo import MongoClient, ASCENDING, DESCENDING
+from pymongo.errors import ConnectionFailure
 
 uri = "mongodb+srv://testuser:hgGWCIOcm1z7X9zM@cluster0.zrojvuw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
@@ -53,3 +54,10 @@ def define_winner(date):
             winner = event
 
     winners_column.insert_one(winner)
+
+def get_health():
+    try:
+        # The ismaster command is cheap and does not require auth.
+        mongo_client.admin.command('ismaster')
+    except ConnectionFailure:
+        print("Server not available")

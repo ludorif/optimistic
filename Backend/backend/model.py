@@ -5,3 +5,6 @@ class Date(BaseModel):
 
 class Event(BaseModel):
     event_id: str
+
+class HealthCheck(BaseModel):
+    status: str = "OK"

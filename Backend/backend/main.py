@@ -46,3 +46,15 @@ def get_winners():
 def define_winner(date : model.Date, response: Response):
     db.define_winner(date.selectedDate)
     response.status_code = status.HTTP_200_OK
+
+@app.get(
+    "/health",
+    tags=["healthcheck"],
+    summary="Perform a Health Check",
+    response_description="Return HTTP Status Code 200 (OK)",
+    status_code=status.HTTP_200_OK,
+    response_model=model.HealthCheck,
+)
+def get_health() -> model.HealthCheck:
+    db.get_health()
+    return model.HealthCheck(status="OK")
