@@ -4,11 +4,6 @@ COPY requirements.txt /requirements.txt
 
 RUN pip install -r /requirements.txt
 
-COPY . /app
-WORKDIR /app
-
-ENV PATH=$PATH:/root/.local/bin
-
 COPY .. .
 
 EXPOSE 5001
