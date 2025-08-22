@@ -12,7 +12,7 @@ jobs:
 
 
       - name: Build Docker image
-        run: Backend/docker build -t fastapi-app .
+        run: docker build -t fastapi-app -f Backend/Dockerfile .
 
 
       - name: Upload Build Artifacts
