@@ -11,4 +11,7 @@ ENV PATH=$PATH:/root/.local/bin
 
 COPY .. .
 
-CMD [ "python", "-m" , "flask", "--app", "Main", "run", "--debug", "--host=0.0.0.0"]
+EXPOSE 5001
+
+
+CMD [ "fastapi", "dev", "backend/main.py", "--port", "5001", "--host=0.0.0.0"]
