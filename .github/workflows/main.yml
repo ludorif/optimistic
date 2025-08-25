@@ -1,24 +1,17 @@
 on: [push]
 
 jobs:
-  hello_world_job:
+  docker_job:
     runs-on: ubuntu-latest
     name: Optimistic
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v4
-
 
       - name: Build Docker image
         run: docker build -t fastapi-app -f Backend/Dockerfile .
 
-      - name: Save Docker image as artifact
-        run: docker save fastapi-app | gzip > fastapi-app.tar.gz
+      - name: Push container image
+        run: docker push ghcr.io/ludorif/optimistic:latest
 
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: fastapi-image
-          path: fastapi-app.tar.gz
+

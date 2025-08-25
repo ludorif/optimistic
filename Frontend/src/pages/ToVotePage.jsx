@@ -49,7 +49,7 @@ const ToVotePage = () => {
         const enoughEvents = eventsToVoteOn != null && eventsToVoteOn.length >= 6;
 
         return enoughEvents ?
-            <p color="red"> Max events for today</p> :
+            <p > Max events for today</p> :
             <>
                 <input onChange={OnTextChanged}/>
                 <button onClick={OnSubmitPressed}>Propose new event</button>
