@@ -15,8 +15,8 @@ pipreqs --encoding=utf-8-sig --force
 
 pip3 freeze > requirements.txt    
 
-docker build --tag optimistic-docker .
+docker build -t optimistic-docker -f Backend/Dockerfile .
 
 Any traffic sent to port 5001 on your host machine will be forwarded to port 5000 within the container.
 
-docker run -d -p 5001:5000 optimistic-docker
+docker run -d -p 5001:5001 optimistic-docker
