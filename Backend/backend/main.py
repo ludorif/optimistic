@@ -1,11 +1,27 @@
 ﻿#  Copyright (c) 2025 Ludovic Riffiod
 import asyncio
+from contextlib import asynccontextmanager
+from datetime import datetime, UTC
 
 from backend import db
 from backend import model
 from backend import open_ai_manager
 from fastapi import FastAPI, Response, status, Request
 from fastapi.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
+from apscheduler.triggers.cron import CronTrigger
+
+def define_winner():
+    today = datetime.now(UTC)
+    db.define_winner(today.strftime("%Y-%m-%d"))
+
+# Set up the scheduler
+scheduler = BackgroundScheduler()
+trigger = CronTrigger(hour=23, minute=59)  # midnight every day
+scheduler.add_job(define_winner, trigger)
+scheduler.start()
+
+
 
 app = FastAPI(redirect_slashes=False)
 app.add_middleware(
@@ -16,6 +32,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Ensure the scheduler shuts down properly on application exit.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    scheduler.shutdown()
 
 
 @app.get("/events/")
@@ -60,11 +81,7 @@ def increase_vote(event: model.ExistingEvent, request: Request,  response: Respo
 def get_winners():
     return db.get_winners()
 
-#should be call at the end of every day
-@app.put("/winners/")
-def define_winner(date : model.Date, response: Response):
-    db.define_winner(date.selectedDate)
-    response.status_code = status.HTTP_200_OK
+
 
 @app.get(
     "/health",

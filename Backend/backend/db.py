@@ -61,7 +61,7 @@ def get_winners():
     return json.dumps(result)
 
 def define_winner(date):
-    events_of_date = events_column.find({"date": date})
+    events_of_date = list(events_column.find({"date": date}))
 
     winner = events_of_date[0]
 
