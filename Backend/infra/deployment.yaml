@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: optimistic
+  name: optimistic
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: optimistic
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: optimistic
+    spec:
+      containers:
+      - image: docker pull ghcr.io/ludorif/optimistic:main
+        name: optimistic
+        resources: {}
+        ports:
+          - containerPort: 5001
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-service
+  labels:
+    app: fastapi
+spec:
+  selector:
+    app: fastapi
+  ports:
+  - name: http
+    protocol: TCP
+    port: 5001
+    targetPort: 5001
+  type: ClusterIP
