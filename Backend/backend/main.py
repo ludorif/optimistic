@@ -40,7 +40,7 @@ def add_new_event(new_event: model.NewEvent, response: Response):
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
     #one of the next step would be to prevent multiple votes from the same IP
-    #print(request.client.host)
+    print(request.client.host)
     
     db.increase_vote(event.event_id)
     response.status_code = status.HTTP_200_OK
