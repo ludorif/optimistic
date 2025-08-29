@@ -8,7 +8,7 @@ export default function  OpEventToVoteOn ({event, onclickFunction}) {
     return (
         <Grid  size={4}   >
             <button onClick={onclickFunction} >
-                <p>voteCount: {event.votes} </p>
+                <p>voteCount: {event.votes.length} </p>
                 <OpEvent event={event} />
             </button>
         </Grid>

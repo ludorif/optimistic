@@ -23,7 +23,7 @@ export default function ExecuteRequest(promise, ResultFunction) {
             ResultFunction(resultArray);
         })
         .catch(error => {
-            ResultFunction();
+            ResultFunction(error);
             console.error('There was an error!', error);
         });
 }

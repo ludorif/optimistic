@@ -10,13 +10,15 @@ const ToVotePage = () => {
     const [eventsToVoteOn, setEventsToVoteOn] = useState(null)
     const [toRefresh, setToRefresh] = useState(0);
     const [newEventText, setNewEventText] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         ExecuteRequest(axios.get(`events/?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
-    function ForceRefresh() {
+    function ForceRefresh(error) {
         setToRefresh(toRefresh + 1)
+        setErrorMessage(error == null ? "" :error.response.data.message)
     }
 
     function VoteFor(eventId) {
@@ -57,7 +59,7 @@ const ToVotePage = () => {
 
 
     return <div>
-
+        <p style={{color: "red"}}> {errorMessage}</p>
         {GetProposeNewEventButtonOrError()}
         <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>
     </div>;
