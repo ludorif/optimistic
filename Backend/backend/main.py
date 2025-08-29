@@ -18,7 +18,7 @@ def define_winner():
 
 # Set up the scheduler
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(hour=14, minute=45)  # midnight every day
+trigger = CronTrigger(hour=23, minute=59)  # midnight every day
 scheduler.add_job(define_winner, trigger)
 scheduler.start()
 
