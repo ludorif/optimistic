@@ -31,6 +31,10 @@ jobs:
           images: ghcr.io/${{ github.repository }}
 
       - name: Build and push Docker image
+        env:
+          mongo_db_uri: ${{ secrets.mongo_db_uri }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          pexels_api_key: ${{ secrets.pexels_api_key }}
         uses: docker/build-push-action@v4
         with:
           context: .
