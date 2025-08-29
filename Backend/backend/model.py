@@ -6,7 +6,6 @@ class Date(BaseModel):
 
 class ExistingEvent(BaseModel):
     event_id: str
-    event_date: str
 
 class NewEvent(BaseModel):
     story: str
