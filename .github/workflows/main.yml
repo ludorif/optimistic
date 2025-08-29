@@ -13,11 +13,6 @@ jobs:
       contents: read
       packages: write
 
-    env:
-      MONGO_DB_URI: ${{ secrets.MONGO_DB_URI }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
