@@ -20,3 +20,7 @@ docker build -t optimistic-docker -f Backend/Dockerfile .
 Any traffic sent to port 5001 on your host machine will be forwarded to port 5000 within the container.
 
 docker run -d -p 5001:5001 optimistic-docker
+
+$env:MONGO_DB_URI=
+$env:GEMINI_API_KEY =
+$env:PEXELS_API_KEY=

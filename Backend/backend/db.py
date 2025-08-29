@@ -13,7 +13,8 @@ events_column = optimistic_db["memory"]
 winners_column = optimistic_db["winners"]
 
 
-
+def count_events(date):
+    return len(list(events_column.find({"date": date})))
 
 def get_events(date):
     if date == "":

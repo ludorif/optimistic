@@ -6,7 +6,6 @@ import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
 
 
-
 const ToVotePage = () => {
     const [eventsToVoteOn, setEventsToVoteOn] = useState(null)
     const [toRefresh, setToRefresh] = useState(0);
@@ -41,15 +40,15 @@ const ToVotePage = () => {
     }
 
     function OnSubmitPressed() {
-        ExecuteRequest(axios.post('events/?story=' + newEventText), ForceRefresh)
+        ExecuteRequest(axios.post('events/', {story: newEventText.target.value, event_date:GetTodayDateStr() }), ForceRefresh)
     }
 
     const GetProposeNewEventButtonOrError = () => {
 
-        const enoughEvents = eventsToVoteOn != null && eventsToVoteOn.length >= 6;
+        const enoughEvents = eventsToVoteOn != null && eventsToVoteOn.length >= 3;
 
         return enoughEvents ?
-            <p > Max events for today</p> :
+            <p style={{color: "red"}}> Max events for today</p> :
             <>
                 <input onChange={OnTextChanged}/>
                 <button onClick={OnSubmitPressed}>Propose new event</button>

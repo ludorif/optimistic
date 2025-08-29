@@ -1,26 +1,25 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
 import { Outlet, Link } from "react-router-dom";
+import Grid from "@mui/material/Grid";
+import React from "react";
 
 const Layout = () => {
     return (
         <>
-            <nav>
-                <ul>
-                    <li>
+        <Grid container spacing={4} justifyContent="center" alignItems="center">
+            <Grid size={2}>
                         <Link to="/">Home</Link>
-                    </li>
-                    <li>
+                    </Grid>
+            <Grid size={2}>
                         <Link to="/history">History</Link>
-                    </li>
-                    <li>
+            </Grid>
+            <Grid size={2}>
                         <Link to="/vote">To vote</Link>
-                    </li>
-                    <li>
+            </Grid>
+            <Grid size={2}>
                         <Link to="/winners">Winners</Link>
-                    </li>
-                </ul>
-            </nav>
-
+            </Grid>
+        </Grid>
             <Outlet />
         </>
     )

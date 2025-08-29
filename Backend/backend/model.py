@@ -4,8 +4,12 @@ from pydantic import BaseModel
 class Date(BaseModel):
     selectedDate: str
 
-class Event(BaseModel):
+class ExistingEvent(BaseModel):
     event_id: str
+
+class NewEvent(BaseModel):
+    story: str
+    event_date: str
 
 class HealthCheck(BaseModel):
     status: str = "OK"

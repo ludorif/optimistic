@@ -27,13 +27,19 @@ def get_dates():
     return db.get_dates()
 
 @app.post("/events/")
-def news(story : str, response: Response):
-    response_dict = open_ai_manager.generate_new_event(story)
-    asyncio.run(db.add_event_to_world(response_dict))
-    response.status_code = status.HTTP_201_CREATED
+def add_new_event(new_event: model.NewEvent, response: Response):
+    number_of_events = db.count_events(new_event.event_date)
+    print(number_of_events)
+    if number_of_events >= 3:
+        response.body = "Enough events for today"
+        response.status_code = status.HTTP_403_FORBIDDEN
+    else:
+        response_dict = open_ai_manager.generate_new_event(new_event.story)
+        asyncio.run(db.add_event_to_world(response_dict))
+        response.status_code = status.HTTP_201_CREATED
 
 @app.put("/events/")
-def increase_vote(event: model.Event, response: Response):
+def increase_vote(event: model.ExistingEvent, response: Response):
     db.increase_vote(event.event_id)
     response.status_code = status.HTTP_200_OK
 
