@@ -5,7 +5,7 @@ import os
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.errors import ConnectionFailure
 
-uri = os.environ["mongo_db_uri"]
+uri = os.environ["MONGO_DB_URI"]
 
 mongo_client = MongoClient(uri)
 optimistic_db = mongo_client["optimistic"]
