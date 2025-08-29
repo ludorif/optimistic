@@ -1,7 +1,7 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
 import React from "react";
 import OpEvent from "./OpEvent.jsx";
-import {ArcherElement} from "react-archer";
+import ArcherElement from '../LocalPackage/react-archer-feature-react-19-migration/src/ArcherElement/ArcherElement';
 
 export default function  OpWinnerEvent ({event,  count, isWinner}) {
     let element = <div>

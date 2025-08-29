@@ -4,9 +4,8 @@ import OpWinnerEvent from "../components/OpWinnerEvent.jsx";
 import styles from "../css/mystyle.module.css";
 import ExecuteRequest from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
-import Xarrow from "react-xarrows";
 //Copyright (c) 2025 Ludovic Riffiod
-import { ArcherContainer, ArcherElement } from 'react-archer';
+import ArcherContainer from '../LocalPackage/react-archer-feature-react-19-migration/src/ArcherContainer/ArcherContainer';
 
 
 
