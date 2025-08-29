@@ -15,7 +15,7 @@ winners_column = optimistic_db["winners"]
 
 def check_current_events(date, client_ip):
     number_of_events = len(list(events_column.find({"date": date})))
-    user_already_participated = False#len(list(events_column.find({"date": date, "client_ip":client_ip}))) > 0
+    user_already_participated = len(list(events_column.find({"date": date, "client_ip":client_ip}))) > 0
     return number_of_events, user_already_participated
 
 def get_events(date):
@@ -46,8 +46,8 @@ async def add_event_to_world(json_to_add):
 
 def increase_vote(event_id, client_ip):
     votes_ip_list = events_column.find_one({"_id": event_id})["votes"]
-    #if client_ip in votes_ip_list:
-    #    return False
+    if client_ip in votes_ip_list:
+        return False
 
     try:
         events_column.update_one({"_id": event_id}, { "$push": { "votes": client_ip } })
