@@ -53,10 +53,6 @@ const History = () => {
         ExecuteRequest(axios.get(`events/?date=${newDate}`), UpdateHistory);
     }
 
-    function OnDefineWinnerPressed() {
-        ExecuteRequest(axios.put('winners/', {selectedDate: selectedDate}));
-    }
-
     return <div>
         <br/>
         <select name="dateSelector" id="dateSelector"
@@ -64,7 +60,6 @@ const History = () => {
                 onChange={(e) => OnDateChanged(e.target.value)} >
             {dates}
         </select>
-        <button onClick={OnDefineWinnerPressed}>Define winner (hack)</button>
         <Grid container spacing={4} justifyContent="center" alignItems="center">{historyPerDate}</Grid>
     </div>
 };
