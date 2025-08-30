@@ -4,6 +4,7 @@ import os
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.errors import ConnectionFailure
+from starlette import status
 
 uri = os.environ["MONGO_DB_URI"]
 
@@ -45,16 +46,20 @@ async def add_event_to_world(json_to_add):
         print(e)
 
 def increase_vote(event_id, client_ip):
-    votes_ip_list = events_column.find_one({"_id": event_id})["votes"]
+    event = events_column.find_one({"_id": event_id})
+    if client_ip == event["client_ip"]:
+        return status.HTTP_403_FORBIDDEN, "You can't vote for your own event"
+
+    votes_ip_list = event["votes"]
     if client_ip in votes_ip_list:
-        return False
+        return status.HTTP_403_FORBIDDEN, "You already voted for this event"
 
     try:
         events_column.update_one({"_id": event_id}, { "$push": { "votes": client_ip } })
-        return True
+        return status.HTTP_200_OK, "Vote added"
     except Exception as e:
         print(e)
-        return False
+        return status.HTTP_403_FORBIDDEN,e
 
 def get_winners():
     result = list(winners_column.find())

@@ -13,11 +13,12 @@ from apscheduler.triggers.cron import CronTrigger
 
 def define_winner():
     today = datetime.now(UTC)
+    print("define_winner")
     db.define_winner(today.strftime("%Y-%m-%d"))
 
 # Set up the scheduler
 scheduler = BackgroundScheduler()
-trigger = CronTrigger(hour=14, minute=25)  # midnight every day
+trigger = CronTrigger(hour=14, minute=35)  # midnight every day
 scheduler.add_job(define_winner, trigger)
 scheduler.start()
 
@@ -68,13 +69,9 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
     client_ip = request.client.host
-    success = db.increase_vote(event.event_id, client_ip)
-    if success:
-        response.status_code = status.HTTP_200_OK
-        return {"message": "Vote added"}
-    else:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"message": "Already participated"}
+    status_code, message = db.increase_vote(event.event_id, client_ip)
+    response.status_code = status_code
+    return {"message": message}
 
 
 @app.get("/winners/")
