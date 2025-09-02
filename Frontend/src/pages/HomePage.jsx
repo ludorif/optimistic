@@ -19,20 +19,6 @@ const HomePage = () => {
             </header>
 
             <section className="card">
-                <h2>Concept</h2>
-                <p>The platform works around the idea of daily optimistic events:</p>
-                <ul>
-                    <li>Users can submit events</li>
-                    <li>The community votes for their favorite event of the day</li>
-                    <li>A winner is declared daily</li>
-                </ul>
-                <p>
-                    All events are intentionally uplifting, imaginative, and
-                    climate-positive, ensuring a positive and future-focused experience.
-                </p>
-            </section>
-
-            <section className="card">
                 <h2>Tech Stack</h2>
                 <ul>
                     <li>
@@ -54,6 +40,20 @@ const HomePage = () => {
                         <strong>Hosting:</strong> Render.com
                     </li>
                 </ul>
+            </section>
+
+            <section className="card">
+                <h2>Concept</h2>
+                <p>The platform works around the idea of daily optimistic events:</p>
+                <ul>
+                    <li>Users can submit events</li>
+                    <li>The community votes for their favorite event of the day</li>
+                    <li>A winner is declared daily</li>
+                </ul>
+                <p>
+                    All events are intentionally uplifting, imaginative, and
+                    climate-positive, ensuring a positive and future-focused experience.
+                </p>
             </section>
 
             <section className="card">

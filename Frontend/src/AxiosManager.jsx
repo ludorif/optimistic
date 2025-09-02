@@ -33,6 +33,7 @@ export function GetTodayDateStr(){
 
     //We add 1 since getUTCMonth returns a value between 0 and 11. We use padStart to always have 2 digits: 01,02...
     const month = (todayDate.getUTCMonth()+1).toString().padStart(2, "0");
+    const day = todayDate.getUTCDate().toString().padStart(2, "0");
 
-    return todayDate.getUTCFullYear() + '-' + month + '-' + todayDate.getUTCDate();
+    return todayDate.getUTCFullYear() + '-' + month + '-' + day;
 }

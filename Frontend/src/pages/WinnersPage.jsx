@@ -28,12 +28,14 @@ function WinnersPage () {
             ++count;
         }
 
-        return <OpWinnerEvent  key={event._id} event={event}  count={count} isWinner={isWinner}></OpWinnerEvent>;
+        return <Grid  size={4}   >
+        <OpWinnerEvent  key={event._id} event={event}  count={count} isWinner={isWinner}></OpWinnerEvent>
+        </Grid>;
 
     }
 
     function GenerateNewLine(lineContent, lineIndex) {
-    return <Grid ref={itemsRef} size={4} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
+    return <Grid height={750} container justifyContent="center" alignItems="center" spacing={2} ref={itemsRef} size={10} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
     }
 
     function UpdateAllEvents(eventsArray) {
@@ -73,7 +75,7 @@ function WinnersPage () {
 
     return (
         <div >
-            <ArcherContainer strokeColor="red">
+            <ArcherContainer strokeColor="gray">
             {allEvents}
             </ArcherContainer>
         </div>

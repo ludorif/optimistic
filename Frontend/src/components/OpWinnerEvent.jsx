@@ -4,21 +4,21 @@ import OpEvent from "./OpEvent.jsx";
 import ArcherElement from '../LocalPackage/react-archer-feature-react-19-migration/src/ArcherElement/ArcherElement';
 
 export default function  OpWinnerEvent ({event,  count, isWinner}) {
-    let element = <div>
-        <OpEvent event={event}>
+    let element = <div style={{ border: '1px solid gray'}}>
+        <OpEvent  event={event}>
         </OpEvent>
     </div>
 
     if (isWinner) {
         const nextWinner = (count + 1);
-        console.log(nextWinner);
         return (
-            <ArcherElement id={count.toString()}
+            <ArcherElement   id={count.toString()}
                            relations={[
                                {
                                    targetId: nextWinner,
-                                   targetAnchor: 'middle',
-                                   sourceAnchor: 'middle',
+                                   targetAnchor: 'top',
+                                   sourceAnchor: 'bottom',
+                                   style: { strokeDasharray: '5,5', lineStyle: 'curve' }
                                },
                            ]}>
                 {element}

@@ -8,6 +8,17 @@
 
 ---
 
+## 🛠 Tech Stack
+
+- **Backend:** Python with FastAPI
+- **Frontend:** React (JavaScript)
+- **AI:** Gemini API to generate events from user stories
+- **Media:** Pexels API for imagery
+- **Database:** MongoDB
+- **Hosting:** Render.com
+
+---
+
 ## ✨ Concept
 
 The platform works around the idea of daily optimistic events:
@@ -20,16 +31,7 @@ All events are intentionally uplifting, imaginative, and climate-positive, ensur
 
 ---
 
-## 🛠 Tech Stack
 
-- **Backend:** Python with FastAPI
-- **Frontend:** React (JavaScript)
-- **AI:** Gemini API to generate events from user stories
-- **Media:** Pexels API for imagery
-- **Database:** MongoDB
-- **Hosting:** Render.com
-
----
 
 ## 🗺 Roadmap
 
