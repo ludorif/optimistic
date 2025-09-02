@@ -1,5 +1,7 @@
 # 🌱 Optimistic
 
+Live at https://www.palindromevr.com/optimistic
+
 **Optimistic** is an open-source project designed with several goals in mind:
 
 - Showcase my full-stack and AI development skills
