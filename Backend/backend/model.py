@@ -6,10 +6,12 @@ class Date(BaseModel):
 
 class ExistingEvent(BaseModel):
     event_id: str
+    uuid: str
 
 class NewEvent(BaseModel):
     story: str
     event_date: str
+    uuid: str
 
 class HealthCheck(BaseModel):
     status: str = "OK"

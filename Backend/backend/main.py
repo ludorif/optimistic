@@ -50,8 +50,7 @@ def get_dates():
 
 @app.post("/events/")
 def add_new_event(new_event: model.NewEvent, request: Request, response: Response):
-    client_ip = request.client.host
-    number_of_events, user_already_participated = db.check_current_events(new_event.event_date, client_ip)
+    number_of_events, user_already_participated = db.check_current_events(new_event.event_date, new_event.uuid)
 
     if user_already_participated:
         response.status_code = status.HTTP_403_FORBIDDEN
@@ -61,15 +60,14 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
         return {"message": "Enough events for today"}
     else:
         response_dict = open_ai_manager.generate_new_event(new_event.story)
-        response_dict["client_ip"]=client_ip
+        response_dict["client_uuid"]= new_event.uuid
         asyncio.run(db.add_event_to_world(response_dict))
         response.status_code = status.HTTP_201_CREATED
         return {"message": "New event added"}
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
-    client_ip = request.client.host
-    status_code, message = db.increase_vote(event.event_id, client_ip)
+    status_code, message = db.increase_vote(event.event_id, event.uuid)
     response.status_code = status_code
     return {"message": message}
 

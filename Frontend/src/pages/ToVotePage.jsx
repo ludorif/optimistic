@@ -13,6 +13,11 @@ const ToVotePage = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
+        const uuid = localStorage.getItem('UUID');
+        if(uuid == null) {
+            localStorage.setItem('UUID', crypto.randomUUID());
+        }
+
         ExecuteRequest(axios.get(`events/?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
@@ -22,7 +27,7 @@ const ToVotePage = () => {
     }
 
     function VoteFor(eventId) {
-        ExecuteRequest(axios.put('events/', {event_id: eventId}), ForceRefresh);
+        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID')}), ForceRefresh);
     }
 
     function UpdateEventsToVoteOn(eventsArray) {
@@ -42,7 +47,7 @@ const ToVotePage = () => {
     }
 
     function OnSubmitPressed() {
-        ExecuteRequest(axios.post('events/', {story: newEventText.target.value, event_date:GetTodayDateStr() }), ForceRefresh)
+        ExecuteRequest(axios.post('events/', {story: newEventText.target.value, event_date:GetTodayDateStr(), uuid: localStorage.getItem('UUID') }), ForceRefresh)
     }
 
     const GetProposeNewEventButtonOrError = () => {

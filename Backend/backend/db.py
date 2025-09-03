@@ -14,9 +14,9 @@ events_column = optimistic_db["memory"]
 winners_column = optimistic_db["winners"]
 
 
-def check_current_events(date, client_ip):
+def check_current_events(date, client_uuid):
     number_of_events = len(list(events_column.find({"date": date})))
-    user_already_participated = len(list(events_column.find({"date": date, "client_ip":client_ip}))) > 0
+    user_already_participated = len(list(events_column.find({"date": date, "client_uuid":client_uuid}))) > 0
     return number_of_events, user_already_participated
 
 def get_events(date):
@@ -26,7 +26,7 @@ def get_events(date):
         pipeline = [
             {"$match": {"date": date}},  # filter by date
             {"$addFields": {"array_size": {"$size": "$votes"}}},  # compute length
-            {"$sort": {"array_size": DESCENDING}}  # sort by that length
+            {"$sort": {"array_size": ASCENDING}}  # sort by that length
         ]
         result = list(events_column.aggregate(pipeline))
 
@@ -45,17 +45,17 @@ async def add_event_to_world(json_to_add):
     except Exception as e:
         print(e)
 
-def increase_vote(event_id, client_ip):
+def increase_vote(event_id, client_uuid):
     event = events_column.find_one({"_id": event_id})
-    if client_ip == event["client_ip"]:
+    if client_uuid == event["client_uuid"]:
         return status.HTTP_403_FORBIDDEN, "You can't vote for your own event"
 
     votes_ip_list = event["votes"]
-    if client_ip in votes_ip_list:
+    if client_uuid in votes_ip_list:
         return status.HTTP_403_FORBIDDEN, "You already voted for this event"
 
     try:
-        events_column.update_one({"_id": event_id}, { "$push": { "votes": client_ip } })
+        events_column.update_one({"_id": event_id}, { "$push": { "votes": client_uuid } })
         return status.HTTP_200_OK, "Vote added"
     except Exception as e:
         print(e)
