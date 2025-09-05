@@ -14,13 +14,20 @@ export default function ExecuteRequest(promise, ResultFunction) {
             }
 
             const resultObject = JSON.parse(response.data);
-            const resultArray =[]
-            resultObject.forEach(
-                item => {
-                    resultArray.push(item)
-                }
-            )
-            ResultFunction(resultArray);
+            if(Array.isArray(resultObject))
+            {
+                const resultArray =[]
+                resultObject.forEach(
+                    item => {
+                        resultArray.push(item)
+                    }
+                )
+                ResultFunction(resultArray);
+            }
+            else
+            {
+                ResultFunction(resultObject);
+            }
         })
         .catch(error => {
             ResultFunction(error);

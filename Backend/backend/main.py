@@ -5,11 +5,13 @@ from datetime import datetime, UTC
 
 from backend import db
 from backend import model
-from backend import open_ai_manager
+from backend import gemini_ai_manager
 from fastapi import FastAPI, Response, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger
+
+
 
 def define_winner():
     today = datetime.now(UTC)
@@ -21,6 +23,7 @@ scheduler = BackgroundScheduler()
 trigger = CronTrigger(hour=23, minute=59)  # midnight every day
 scheduler.add_job(define_winner, trigger)
 scheduler.start()
+
 
 
 
@@ -59,7 +62,7 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
         response.status_code = status.HTTP_403_FORBIDDEN
         return {"message": "Enough events for today"}
     else:
-        response_dict = open_ai_manager.generate_new_event(new_event.story)
+        response_dict = gemini_ai_manager.generate_new_event(new_event.story)
         response_dict["client_uuid"]= new_event.uuid
         asyncio.run(db.add_event_to_world(response_dict))
         response.status_code = status.HTTP_201_CREATED
@@ -75,6 +78,12 @@ def increase_vote(event: model.ExistingEvent, request: Request,  response: Respo
 @app.get("/winners/")
 def get_winners():
     return db.get_winners()
+
+@app.get("/voiceOver/")
+def get_voice_over(content : str):
+    test = gemini_ai_manager.generate_text(content)
+    print(test)
+    return test
 
 
 

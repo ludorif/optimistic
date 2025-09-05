@@ -35,7 +35,7 @@ function WinnersPage () {
     }
 
     function GenerateNewLine(lineContent, lineIndex) {
-    return <Grid height={750} container justifyContent="center" alignItems="center" spacing={2} ref={itemsRef} size={10} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
+    return <Grid height={750} container justifyContent="center" alignItems="center" spacing={1} ref={itemsRef} size={10} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
     }
 
     function UpdateAllEvents(eventsArray) {
