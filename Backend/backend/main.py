@@ -6,6 +6,7 @@ from datetime import datetime, UTC
 from backend import db
 from backend import model
 from backend import gemini_ai_manager
+from backend import voice_over_manager
 from fastapi import FastAPI, Response, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
@@ -81,9 +82,7 @@ def get_winners():
 
 @app.get("/voiceOver/")
 def get_voice_over(content : str):
-    test = gemini_ai_manager.generate_text(content)
-    print(test)
-    return test
+    return voice_over_manager.generate_text(content)
 
 
 

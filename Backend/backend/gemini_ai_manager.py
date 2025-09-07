@@ -1,40 +1,16 @@
 #  Copyright (c) 2025 Ludovic Riffiod
-import random
+
 import uuid
 import json
-import wave
 
 from google import genai
 
 from backend import helper
 from backend import pexels_manager
-import requests
 
 
-def generate_text(content):
-    headers = {
-        'Authorization': 'Bearer 9e182730-c326-11ed-8065-bdc02cb83f9c',
-        'Content-Type': 'application/json',
-    }
 
-    print(random.random())
-    voice_id = 'proplus-Lucy' if random.random() >= 0.5  else "proplus-RyanCooper"
 
-    json_data = {
-        'Engine': 'neural',
-        'VoiceId': voice_id,
-        'LanguageCode': 'en-GB',
-        'Text': content,
-        'OutputFormat': 'mp3',
-        'SampleRate': '48000',
-        'Effect': 'default',
-        'MasterVolume': '0',
-        'MasterSpeed': '0',
-        'MasterPitch': '0',
-    }
-
-    response = requests.post('https://developer.voicemaker.in/voice/api', headers=headers, json=json_data)
-    return json.dumps(response.json())
 
 
 def generate_new_event(story : str):
