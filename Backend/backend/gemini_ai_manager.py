@@ -9,10 +9,6 @@ from backend import helper
 from backend import pexels_manager
 
 
-
-
-
-
 def generate_new_event(story : str):
     client = genai.Client()
 

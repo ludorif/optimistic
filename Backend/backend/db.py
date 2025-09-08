@@ -33,8 +33,6 @@ def get_events(date):
     return json.dumps(result)
 
 
-
-
 def get_dates():
     events = events_column.find({}, {"date": 1, "_id":1}).distinct("date")
     return json.dumps(list(events))
