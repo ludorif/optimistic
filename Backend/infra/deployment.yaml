@@ -5,6 +5,7 @@ metadata:
   labels:
     app: optimistic
   name: optimistic
+  namespace: ludovic-riffiod
 spec:
   replicas: 2
   selector:
@@ -18,7 +19,7 @@ spec:
         app: optimistic
     spec:
       containers:
-      - image: docker pull ghcr.io/ludorif/optimistic:main
+      - image: ghcr.io/ludorif/optimistic:v0.3
         name: optimistic
         resources: {}
         ports:
@@ -28,12 +29,13 @@ status: {}
 apiVersion: v1
 kind: Service
 metadata:
-  name: fastapi-service
+  name: optimistic-service
+  namespace: ludovic-riffiod
   labels:
-    app: fastapi
+    app: optimistic-service
 spec:
   selector:
-    app: fastapi
+    app: optimistic 
   ports:
   - name: http
     protocol: TCP
