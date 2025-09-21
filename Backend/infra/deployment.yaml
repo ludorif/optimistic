@@ -19,7 +19,7 @@ spec:
         app: optimistic
     spec:
       containers:
-      - image: ghcr.io/ludorif/optimistic:v0.4
+      - image: ghcr.io/ludorif/optimistic:v0.7
         name: optimistic
         resources: {}
         ports:
