@@ -1,6 +1,8 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
 import React from 'react'
 import '../css/App.css'
+import Globe from 'react-globe.gl';
+
 
 const HomePage = () => {
     return (
@@ -17,6 +19,8 @@ const HomePage = () => {
                     </li>
                 </ul>
             </header>
+
+
 
             <section className="card">
                 <h2>Tech Stack</h2>
