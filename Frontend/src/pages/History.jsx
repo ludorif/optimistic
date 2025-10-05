@@ -5,6 +5,7 @@ import React, {useEffect, useState} from "react";
 import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
+import titleStyle from "../Helper.jsx";
 
 
 const History = () => {
@@ -53,8 +54,10 @@ const History = () => {
         ExecuteRequest(axios.get(`events/?date=${newDate}`), UpdateHistory);
     }
 
+
     return <div>
         <br/>
+        <h1 style={titleStyle}>History</h1>
         <select name="dateSelector" id="dateSelector"
                 value={selectedDate}
                 onChange={(e) => OnDateChanged(e.target.value)} >

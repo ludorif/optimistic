@@ -4,6 +4,7 @@ import axios from "axios";
 import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
 import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
+import titleStyle from "../Helper.jsx";
 
 
 const ToVotePage = () => {
@@ -64,6 +65,8 @@ const ToVotePage = () => {
 
 
     return <div>
+        <h1 style={titleStyle}>Vote or create a new event:</h1>
+
         <p style={{color: "red"}}> {errorMessage}</p>
         {GetProposeNewEventButtonOrError()}
         <Grid container spacing={10} justifyContent="center" alignItems="center"   >{eventsToVoteOn}</Grid>

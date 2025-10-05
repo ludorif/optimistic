@@ -6,6 +6,7 @@ import ExecuteRequest from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
 //Copyright (c) 2025 Ludovic Riffiod
 import ArcherContainer from '../LocalPackage/react-archer-feature-react-19-migration/src/ArcherContainer/ArcherContainer';
+import titleStyle from "../Helper.jsx";
 
 
 
@@ -75,6 +76,8 @@ function WinnersPage () {
 
     return (
         <div >
+            <h1 style={titleStyle}>Events that won:</h1>
+
             <ArcherContainer strokeColor="gray">
             {allEvents}
             </ArcherContainer>

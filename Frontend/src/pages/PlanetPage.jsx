@@ -8,11 +8,13 @@ import Grid from "@mui/material/Grid";
 import mars_surface from '../assets/mars_surface.png';
 import lunar_surface from '../assets/lunar_surface.jpg';
 import earth_surface from '../assets/earth_surface.jpg';
+import titleStyle from "../Helper.jsx";
+import React from "react";
 
 const PlanetPage = () =>{
 
     return <>
-    <p> Choose your planet</p>
+    <h1 style={titleStyle}>Change your planet (WIP)</h1>
     <Grid container  justifyContent="center" alignItems="center" size={20} >
         <Grid size={4} >
         <Planet surfaceImage = {mars_surface}></Planet>
