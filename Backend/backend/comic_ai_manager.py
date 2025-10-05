@@ -10,15 +10,13 @@ from botocore.exceptions import NoCredentialsError, ClientError
 
 
 async def generate(summary_content):
-    await upload_results()
-    return
     client = Client(token=os.environ["MAGIC_HOUR_KEY"])
 
     result = client.v1.ai_image_generator.generate(
         image_count=4,
         orientation="landscape",
         style={
-            "prompt": summary_content
+            "prompt": f"vintage comic with some comic bubbles related to this story:${summary_content}"
         },
         wait_for_completion=True, # wait for the render to complete
         download_outputs=True, # download the outputs to local disk

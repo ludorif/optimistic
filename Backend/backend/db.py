@@ -69,6 +69,10 @@ def get_winners():
 def define_winner(date):
     events_of_date = list(events_column.find({"date": date}))
 
+    if len(events_of_date) == 0:
+        print("no events")
+        return False
+
     winner = events_of_date[0]
 
     for event in events_of_date:
@@ -76,6 +80,7 @@ def define_winner(date):
             winner = event
 
     winners_column.insert_one(winner)
+    return True
 
 def get_health():
     try:
@@ -91,5 +96,8 @@ def update_summary(planet, summary_content):
         print(e)
 
 def get_summary(planet):
-    return json.dumps(summary_column.find_one({"planet": planet})['content'])
+    summary_content = summary_column.find_one({"planet": planet})['content']
+    summary_content = summary_content.replace("\\", "")
+    summary_content = summary_content.replace("\"\"\"", "")
+    return json.dumps(summary_content)
 

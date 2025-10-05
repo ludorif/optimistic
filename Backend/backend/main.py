@@ -30,10 +30,14 @@ def get_summary():
         all_events_str = all_events_str + "\""+ event['content'] + "\","
     return gemini_ai_manager.generate_summary(all_events_str)
 
-def define_winner():
+#@app.get("/define_winner/")
+async def define_winner():
     today = datetime.now(UTC)
     print("define_winner")
-    db.define_winner(today.strftime("%Y-%m-%d"))
+    success = db.define_winner(today.strftime("%Y-%m-%d"))
+    if success ==  True:
+        await generate_summary_and_comic()
+
 
 
 def main():
@@ -47,14 +51,13 @@ def main():
 
 
 @app.get("/summary/")
-async def generate_summary():
+def get_summary():
     return db.get_summary(1)
 
-@app.post("/summary/")
-async def generate_summary():
+async def generate_summary_and_comic():
     summary_content = get_summary()
     db.update_summary(1, summary_content)
-    #await comic_ai_manager.generate(summary_content)
+    await comic_ai_manager.generate(summary_content)
 
 # Ensure the scheduler shuts down properly on application exit.
 @asynccontextmanager
