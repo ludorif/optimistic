@@ -32,4 +32,16 @@ def generate_new_event(story : str):
 
     return  response_dict
 
+def generate_summary(all_events):
+    client = genai.Client()
 
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=f"Make a one or two sentences summary of this planet story based on all those events: \"{all_events}\"."
+                 f"It should be overly optimistic and always climate positive."
+    )
+
+    response_formatted = response.text.replace("```json", "")
+    response_formatted = response_formatted.replace("```", "")
+
+    return response_formatted

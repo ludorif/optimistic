@@ -3,30 +3,15 @@ import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime, UTC
 
-from backend import db
-from backend import model
-from backend import gemini_ai_manager
-from backend import voice_over_manager
+from . import db
+from . import model
+from . import gemini_ai_manager
+from . import voice_over_manager
 from fastapi import FastAPI, Response, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger
-
-
-
-def define_winner():
-    today = datetime.now(UTC)
-    print("define_winner")
-    db.define_winner(today.strftime("%Y-%m-%d"))
-
-# Set up the scheduler
-scheduler = BackgroundScheduler()
-trigger = CronTrigger(hour=23, minute=59)  # midnight every day
-scheduler.add_job(define_winner, trigger)
-scheduler.start()
-
-
-
+from . import comic_ai_manager
 
 app = FastAPI(redirect_slashes=False)
 app.add_middleware(
@@ -36,6 +21,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def get_summary():
+    all_events = db.get_all_events_story()
+    all_events_str = ""
+    for event in all_events:
+        all_events_str = all_events_str + "\""+ event['content'] + "\","
+    return gemini_ai_manager.generate_summary(all_events_str)
+
+def define_winner():
+    today = datetime.now(UTC)
+    print("define_winner")
+    db.define_winner(today.strftime("%Y-%m-%d"))
+
+
+def main():
+    # Set up the scheduler
+    scheduler = BackgroundScheduler()
+    trigger = CronTrigger(hour=23, minute=59)  # midnight every day
+    scheduler.add_job(define_winner, trigger)
+    scheduler.start()
+
+
+
+
+@app.get("/summary/")
+async def generate_summary():
+    return db.get_summary(1)
+
+@app.post("/summary/")
+async def generate_summary():
+    summary_content = get_summary()
+    db.update_summary(1, summary_content)
+    #await comic_ai_manager.generate(summary_content)
 
 # Ensure the scheduler shuts down properly on application exit.
 @asynccontextmanager
@@ -97,3 +116,5 @@ def get_voice_over(content : str):
 def get_health() -> model.HealthCheck:
     db.get_health()
     return model.HealthCheck(status="OK")
+
+main()

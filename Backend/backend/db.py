@@ -12,12 +12,15 @@ mongo_client = MongoClient(uri)
 optimistic_db = mongo_client["optimistic"]
 events_column = optimistic_db["memory"]
 winners_column = optimistic_db["winners"]
-
+summary_column = optimistic_db["summary"]
 
 def check_current_events(date, client_uuid):
     number_of_events = len(list(events_column.find({"date": date})))
     user_already_participated = len(list(events_column.find({"date": date, "client_uuid":client_uuid}))) > 0
     return number_of_events, user_already_participated
+
+def get_all_events_story():
+    return events_column.find({}, {"content": 1})
 
 def get_events(date):
     if date == "":
@@ -80,3 +83,13 @@ def get_health():
         mongo_client.admin.command('ismaster')
     except ConnectionFailure:
         print("Server not available")
+
+def update_summary(planet, summary_content):
+    try:
+        summary_column.update_one({"planet": planet}, {"$set": {"content": summary_content}},  upsert=True)
+    except Exception as e:
+        print(e)
+
+def get_summary(planet):
+    return json.dumps(summary_column.find_one({"planet": planet})['content'])
+

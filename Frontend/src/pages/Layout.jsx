@@ -22,6 +22,9 @@ const Layout = () => {
             <Grid size={2}>
                 <Link to="/planet">Planet</Link>
             </Grid>
+            <Grid size={2}>
+                <Link to="/summary">Summary</Link>
+            </Grid>
         </Grid>
             <Outlet />
         </>

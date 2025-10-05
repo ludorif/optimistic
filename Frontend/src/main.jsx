@@ -8,6 +8,7 @@ import ToVotePage from "./pages/ToVotePage";
 import WinnersPage from "./pages/WinnersPage.jsx";
 import PlanetPage from "./pages/PlanetPage";
 import axios from "axios";
+import SummaryPage from "./pages/SummaryPage.jsx";
 
 axios.defaults.baseURL = 'https://optimistic-o23i.onrender.com';
 
@@ -21,6 +22,7 @@ export default function App() {
                     <Route path="vote" element={<ToVotePage />} />
                     <Route path="winners" element={<WinnersPage />} />
                     <Route path="planet" element={<PlanetPage />} />
+                    <Route path="summary" element={<SummaryPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
