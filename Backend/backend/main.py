@@ -106,6 +106,14 @@ def get_winners():
 def get_voice_over(content : str):
     return voice_over_manager.generate_text(content)
 
+@app.get("/planets/")
+def get_planets():
+    return db.get_planets()
+
+@app.post("/planets/")
+def post_planets(new_planet: model.Planet, response: Response):
+    db.post_planet(new_planet)
+    return {"message": "New planet added"}
 
 
 @app.get(

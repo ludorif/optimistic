@@ -6,7 +6,7 @@ import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import ToVotePage from "./pages/ToVotePage";
 import WinnersPage from "./pages/WinnersPage.jsx";
-import PlanetPage from "./pages/PlanetPage";
+import PlanetPage from "./pages/PlanetPage.js";
 import axios from "axios";
 import SummaryPage from "./pages/SummaryPage.jsx";
 

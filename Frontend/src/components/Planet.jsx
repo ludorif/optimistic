@@ -17,6 +17,10 @@ import {ToggleButton} from "@mui/material";
 import Button from "@mui/material/Button";
 import { useNavigate } from 'react-router-dom';  // Import useNavigate hook
 
+import mars_surface from "../assets/mars_surface.png";
+import lunar_surface from '../assets/lunar_surface.jpg';
+import earth_surface from '../assets/earth_surface.jpg';
+
 
 const colorScale = scaleOrdinal(['orangered', 'mediumblue', 'darkgreen', 'yellow']);
 
@@ -64,12 +68,15 @@ export const ToggablePlanet = ({value, surfaceImage}) =>{
     </>
 }
 
-export const ClickablePlanet = ({surfaceImage, planetName}) =>{
+export const ClickablePlanet = ({ planetName, type}) =>{
     const navigate = useNavigate();
     function RedirectToHistory() {
         localStorage.setItem("planetName", planetName)
-        navigate('/history')
+        //navigate('/history')
     }
+
+    const surfaceImage = type === "moon" ? lunar_surface : type === "earth" ? earth_surface : mars_surface
+
     return <>
         <Button onClick={RedirectToHistory}>
         <Grid >

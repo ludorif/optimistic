@@ -15,3 +15,7 @@ class NewEvent(BaseModel):
 
 class HealthCheck(BaseModel):
     status: str = "OK"
+
+class Planet(BaseModel):
+    name: str
+    type: str
