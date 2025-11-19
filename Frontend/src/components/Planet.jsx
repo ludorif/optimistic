@@ -12,6 +12,11 @@ import { scaleOrdinal } from 'https://esm.sh/d3-scale';
 import bumpImage from '../assets/lunar_bumpmap.jpg';
 import backgroundImage from '../assets/night-sky.png';
 import moon_landings from '../assets/moon_landings.json';
+import Grid from "@mui/material/Grid";
+import {ToggleButton} from "@mui/material";
+import Button from "@mui/material/Button";
+import { useNavigate } from 'react-router-dom';  // Import useNavigate hook
+
 
 const colorScale = scaleOrdinal(['orangered', 'mediumblue', 'darkgreen', 'yellow']);
 
@@ -28,8 +33,8 @@ const Planet = ({surfaceImage}) =>{
     }, []);
 
     return <Globe
-        width={400}
-        height={400}
+        width={300}
+        height={300}
         globeImageUrl={surfaceImage}
         bumpImageUrl={bumpImage}
         backgroundImageUrl={backgroundImage}
@@ -47,6 +52,32 @@ const Planet = ({surfaceImage}) =>{
         </div>}
         onLabelClick={d => window.open(d.url, '_blank')}
     />;
+}
+
+
+
+export const ToggablePlanet = ({value, surfaceImage}) =>{
+    return <>
+        <ToggleButton value={value} >
+            <Planet surfaceImage={surfaceImage} />
+        </ToggleButton>
+    </>
+}
+
+export const ClickablePlanet = ({surfaceImage, planetName}) =>{
+    const navigate = useNavigate();
+    function RedirectToHistory() {
+        localStorage.setItem("planetName", planetName)
+        navigate('/history')
+    }
+    return <>
+        <Button onClick={RedirectToHistory}>
+        <Grid >
+            <p>{planetName}</p>
+            <Planet surfaceImage={surfaceImage} />
+        </Grid>
+        </Button>
+    </>
 }
 
 export default Planet;

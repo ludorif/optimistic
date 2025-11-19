@@ -10,7 +10,7 @@ import PlanetPage from "./pages/PlanetPage";
 import axios from "axios";
 import SummaryPage from "./pages/SummaryPage.jsx";
 
-axios.defaults.baseURL = 'https://optimistic-o23i.onrender.com';
+axios.defaults.baseURL = 'http://127.0.0.1:5001';
 
 export default function App() {
     return (
