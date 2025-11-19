@@ -2,7 +2,7 @@
  * Copyright (c) 2025 Ludovic Riffiod
  */
 
-import  {ClickablePlanet} from "../../components/Planet.jsx";
+import  {ClickablePlanet} from "../../components/Planet";
 import React, {useEffect} from "react";
 import ExecuteRequest from "../../AxiosManager.jsx";
 import axios from "axios";
@@ -33,7 +33,7 @@ const PlanetPage = () => {
 
     function UpdatePlanets(planetsArray: any[]) {
         const planetsMap = planetsArray.map((item) =>
-            <ClickablePlanet planetName={item.planet_name} type={item.planet_type}></ClickablePlanet>);
+            <ClickablePlanet planetName={item.planet_name} planetType={item.planet_type}></ClickablePlanet>);
         setPlanets(planetsMap);
     }
 

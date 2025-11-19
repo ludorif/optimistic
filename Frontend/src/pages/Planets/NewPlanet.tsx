@@ -42,9 +42,9 @@ const CreateNewPlanet = () => {
             onChange={handlePlanetType}
             aria-label="text alignment"
         >
-            <ToggablePlanet value="mars" surfaceImage={mars_surface}></ToggablePlanet>
-            <ToggablePlanet value="moon" surfaceImage={lunar_surface}></ToggablePlanet>
-            <ToggablePlanet value="earth" surfaceImage={earth_surface}></ToggablePlanet>
+            <ToggablePlanet value="mars" planetType="mars"></ToggablePlanet>
+            <ToggablePlanet value="moon" planetType="moon"></ToggablePlanet>
+            <ToggablePlanet value="earth" planetType="earth"></ToggablePlanet>
 
         </ToggleButtonGroup>
 
