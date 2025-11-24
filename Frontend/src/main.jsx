@@ -6,11 +6,13 @@ import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import ToVotePage from "./pages/ToVotePage";
 import WinnersPage from "./pages/WinnersPage.jsx";
-import PlanetPage from "./pages/PlanetPage";
+import PlanetPage from "./pages/Planets/PlanetPage.tsx";
 import axios from "axios";
 import SummaryPage from "./pages/SummaryPage.jsx";
 
-axios.defaults.baseURL = 'https://optimistic-o23i.onrender.com';
+
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
 
 export default function App() {
     return (

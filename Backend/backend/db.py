@@ -1,10 +1,13 @@
 ﻿#  Copyright (c) 2025 Ludovic Riffiod
 import json
 import os
+import uuid
 
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.errors import ConnectionFailure
 from starlette import status
+
+from . import model
 
 uri = os.environ["MONGO_DB_URI"]
 
@@ -13,6 +16,7 @@ optimistic_db = mongo_client["optimistic"]
 events_column = optimistic_db["memory"]
 winners_column = optimistic_db["winners"]
 summary_column = optimistic_db["summary"]
+planets_column = optimistic_db["planets"]
 
 def check_current_events(date, client_uuid):
     number_of_events = len(list(events_column.find({"date": date})))
@@ -101,3 +105,11 @@ def get_summary(planet):
     summary_content = summary_content.replace("\"\"\"", "")
     return json.dumps(summary_content)
 
+
+def get_planets():
+    planets_content = list(planets_column.find())
+    return json.dumps(planets_content)
+
+def post_planet(new_planet: model.Planet):
+    new_planet_json = {"_id":str(uuid.uuid4()), "planet_name": new_planet.name, "planet_type": new_planet.type}
+    planets_column.insert_one(new_planet_json)
