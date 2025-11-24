@@ -23,9 +23,6 @@ const History = () => {
             setSelectedDate(savedDate);
         }
 
-        const planetName = localStorage.getItem("planetName");
-        alert(JSON.parse(planetName))
-
     }, []);
 
 

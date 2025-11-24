@@ -34,6 +34,10 @@ function GetSurfaceImage(PlanetType:string) {
     return PlanetType === "moon" ? lunar_surface : PlanetType === "earth" ? earth_surface : mars_surface;
 }
 
+export const TypedPlanet = ({planetType}) =>{
+    return <Planet surfaceImage={GetSurfaceImage(planetType)} />
+}
+
 
 export const ToggablePlanet = ({value, planetType}) =>{
     return <>
@@ -47,17 +51,19 @@ export const ClickablePlanet = ({ planetName, planetType}) =>{
     const navigate = useNavigate();
     function RedirectToHistory() {
         localStorage.setItem("planetName", planetName)
-        //navigate('/history')
+        localStorage.setItem("planetType", planetType)
+        navigate('/history')
     }
 
 
     return <>
-        <Button onClick={RedirectToHistory}>
+
         <Grid >
             <p>{planetName}</p>
             <Planet surfaceImage={GetSurfaceImage(planetType)} />
+            <Button variant="outlined" onClick={RedirectToHistory}> Select </Button>
         </Grid>
-        </Button>
+
     </>
 }
 
