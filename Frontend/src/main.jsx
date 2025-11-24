@@ -10,7 +10,9 @@ import PlanetPage from "./pages/Planets/PlanetPage.tsx";
 import axios from "axios";
 import SummaryPage from "./pages/SummaryPage.jsx";
 
-axios.defaults.baseURL = 'http://127.0.0.1:5001';
+
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+
 
 export default function App() {
     return (
