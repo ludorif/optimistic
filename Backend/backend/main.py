@@ -3,7 +3,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from datetime import datetime, UTC
 
-from . import db
+from . import mongo_db
 from . import model
 from . import gemini_ai_manager
 from . import voice_over_manager
@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
+from . import postgres_sql_db
 
 app = FastAPI(redirect_slashes=False)
 app.add_middleware(
@@ -24,7 +25,7 @@ app.add_middleware(
 
 
 def get_summary():
-    all_events = db.get_all_events_story()
+    all_events = mongo_db.get_all_events_story()
     all_events_str = ""
     for event in all_events:
         all_events_str = all_events_str + "\""+ event['content'] + "\","
@@ -34,7 +35,7 @@ def get_summary():
 async def define_winner():
     today = datetime.now(UTC)
     print("define_winner")
-    success = db.define_winner(today.strftime("%Y-%m-%d"))
+    success = mongo_db.define_winner(today.strftime("%Y-%m-%d"))
     if success ==  True:
         await generate_summary_and_comic()
 
@@ -46,17 +47,18 @@ def main():
     trigger = CronTrigger(hour=23, minute=59)  # midnight every day
     scheduler.add_job(define_winner, trigger)
     scheduler.start()
+    postgres_sql_db.test()
 
 
 
 
 @app.get("/summary/")
 def get_summary():
-    return db.get_summary(1)
+    return mongo_db.get_summary(1)
 
 async def generate_summary_and_comic():
     summary_content = get_summary()
-    db.update_summary(1, summary_content)
+    mongo_db.update_summary(1, summary_content)
     await comic_ai_manager.generate(summary_content)
 
 # Ensure the scheduler shuts down properly on application exit.
@@ -68,15 +70,15 @@ async def lifespan(app: FastAPI):
 
 @app.get("/events/")
 def get_events(date : str | None = ""):
-    return db.get_events(date)
+    return mongo_db.get_events(date)
 
 @app.get("/events/dates")
 def get_dates():
-    return db.get_dates()
+    return mongo_db.get_dates()
 
 @app.post("/events/")
 def add_new_event(new_event: model.NewEvent, request: Request, response: Response):
-    number_of_events, user_already_participated = db.check_current_events(new_event.event_date, new_event.uuid)
+    number_of_events, user_already_participated = mongo_db.check_current_events(new_event.event_date, new_event.uuid)
 
     if user_already_participated:
         response.status_code = status.HTTP_403_FORBIDDEN
@@ -87,20 +89,20 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
     else:
         response_dict = gemini_ai_manager.generate_new_event(new_event.story)
         response_dict["client_uuid"]= new_event.uuid
-        asyncio.run(db.add_event_to_world(response_dict))
+        asyncio.run(mongo_db.add_event_to_world(response_dict))
         response.status_code = status.HTTP_201_CREATED
         return {"message": "New event added"}
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
-    status_code, message = db.increase_vote(event.event_id, event.uuid)
+    status_code, message = mongo_db.increase_vote(event.event_id, event.uuid)
     response.status_code = status_code
     return {"message": message}
 
 
 @app.get("/winners/")
 def get_winners():
-    return db.get_winners()
+    return mongo_db.get_winners()
 
 @app.get("/voiceOver/")
 def get_voice_over(content : str):
@@ -108,11 +110,11 @@ def get_voice_over(content : str):
 
 @app.get("/planets/")
 def get_planets():
-    return db.get_planets()
+    return mongo_db.get_planets()
 
 @app.post("/planets/")
 def post_planets(new_planet: model.Planet, response: Response):
-    db.post_planet(new_planet)
+    mongo_db.post_planet(new_planet)
     return {"message": "New planet added"}
 
 
@@ -125,7 +127,7 @@ def post_planets(new_planet: model.Planet, response: Response):
     response_model=model.HealthCheck,
 )
 def get_health() -> model.HealthCheck:
-    db.get_health()
+    mongo_db.get_health()
     return model.HealthCheck(status="OK")
 
 main()
