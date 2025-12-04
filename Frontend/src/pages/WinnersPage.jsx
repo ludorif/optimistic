@@ -22,7 +22,7 @@ function WinnersPage () {
     }
 
     function GenerateNewOpEvent(event) {
-        const isWinner = winners.find((item) => item._id === event._id) != null;
+        const isWinner = winners.find((item) => item.id === event.id) != null;
 
 
         if (isWinner) {
@@ -42,11 +42,12 @@ function WinnersPage () {
     function UpdateAllEvents(eventsArray) {
         let localAllEvents = []
         let lineContent = [];
-        let date = Date.parse(eventsArray[0].date);
+        let date = Date.parse(eventsArray[0].created_at);
         let lineIndex = 0;
 
         for (let event of eventsArray) {
-            const parsedDate = Date.parse(event.date)
+            const parsedDate = Date.parse(event.created_at)
+            console.log(parsedDate);
             if (parsedDate > date)
             {
                 localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
@@ -70,7 +71,7 @@ function WinnersPage () {
         if(winners.length === 0){
             return;
         }
-        ExecuteRequest(axios.get("events/"), UpdateAllEvents);
+        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}`), UpdateAllEvents);
         }, [winners])
 
 

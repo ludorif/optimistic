@@ -27,10 +27,10 @@ const History = () => {
 
 
     function UpdateDates(datesArray) {
-       const datesMap = datesArray.map((item, index) => <option key={index} value={item}>{item}</option>);
+       const datesMap = datesArray.map((item, index) => <option key={index} value={item.created_at}>{new Date(item.created_at).toDateString()}</option>);
 
         setDates(datesMap)
-        const savedDate = localStorage.getItem('selectedDate') || datesArray[0];
+        const savedDate = localStorage.getItem('selectedDate') || datesArray[0].created_at;
         setSelectedDate(savedDate);
         OnDateChanged(savedDate);
     }
@@ -51,7 +51,7 @@ const History = () => {
         setSelectedDate(newDate);
 
 
-        ExecuteRequest(axios.get(`events/?date=${newDate}`), UpdateHistory);
+        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&date=${new Date(newDate).toDateString()}`), UpdateHistory);
     }
 
 

@@ -19,7 +19,7 @@ const ToVotePage = () => {
             localStorage.setItem('UUID', crypto.randomUUID());
         }
 
-        ExecuteRequest(axios.get(`events/?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
+        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
     function ForceRefresh(error) {
@@ -28,15 +28,20 @@ const ToVotePage = () => {
     }
 
     function VoteFor(eventId) {
-        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID')}), ForceRefresh);
+        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID')},{
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }), ForceRefresh);
     }
 
     function UpdateEventsToVoteOn(eventsArray) {
+        console.log(eventsArray);
         const eventsMap = eventsArray.map(item => (
                 <OpEventToVoteOn
-                    key={item._id}
+                    key={item.id}
                     event = {item}
-                    onclickFunction={() => VoteFor(item._id)}>
+                    onclickFunction={() => VoteFor(item.id)}>
                 </OpEventToVoteOn>
             ));
 
@@ -48,7 +53,12 @@ const ToVotePage = () => {
     }
 
     function OnSubmitPressed() {
-        ExecuteRequest(axios.post('events/', {story: newEventText.target.value, event_date:GetTodayDateStr(), uuid: localStorage.getItem('UUID') }), ForceRefresh)
+        ExecuteRequest(axios.post('events/',
+            {
+                planet_id: Number(localStorage.getItem('planetId')),
+                story: newEventText.target.value,
+                event_date:GetTodayDateStr(),
+                uuid: localStorage.getItem('UUID') }), ForceRefresh)
     }
 
     const GetProposeNewEventButtonOrError = () => {

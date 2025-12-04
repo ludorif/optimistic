@@ -23,9 +23,14 @@ const CreateNewPlanet = () => {
         setPlanetType(newPlanetType);
     };
 
+    function OnPlanetCreated(response){
+        console.log(response);
+        localStorage.setItem("planetId", response.planet_id);
+    }
+
     function CheckValues() {
 
-        ExecuteRequest(axios.post('planets/', {name: planetNameRef.current!.value, type: planetType}));
+        ExecuteRequest(axios.post('planets/', {name: planetNameRef.current!.value, type: planetType, first_story: planetStoryRef.current!.value }), OnPlanetCreated);
 
     }
 

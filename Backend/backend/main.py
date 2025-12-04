@@ -42,12 +42,14 @@ async def define_winner():
 
 
 def main():
+    print("starting")
     # Set up the scheduler
     scheduler = BackgroundScheduler()
     trigger = CronTrigger(hour=23, minute=59)  # midnight every day
     scheduler.add_job(define_winner, trigger)
     scheduler.start()
-    postgres_sql_db.test()
+    postgres_sql_db.create_all_tables()
+    print("started")
 
 
 
@@ -69,17 +71,18 @@ async def lifespan(app: FastAPI):
 
 
 @app.get("/events/")
-def get_events(date : str | None = ""):
-    return mongo_db.get_events(date)
+def get_events(planet_id : int, date : str | None = ""):
+    return postgres_sql_db.get_events(planet_id, date)
 
 @app.get("/events/dates")
 def get_dates():
-    return mongo_db.get_dates()
+    return postgres_sql_db.get_dates()
 
 @app.post("/events/")
 def add_new_event(new_event: model.NewEvent, request: Request, response: Response):
-    number_of_events, user_already_participated = mongo_db.check_current_events(new_event.event_date, new_event.uuid)
+    number_of_events, user_already_participated = postgres_sql_db.check_current_events(new_event.event_date, new_event.uuid)
 
+    print(number_of_events)
     if user_already_participated:
         response.status_code = status.HTTP_403_FORBIDDEN
         return {"message":"Already participated"}
@@ -88,21 +91,21 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
         return {"message": "Enough events for today"}
     else:
         response_dict = gemini_ai_manager.generate_new_event(new_event.story)
-        response_dict["client_uuid"]= new_event.uuid
-        asyncio.run(mongo_db.add_event_to_world(response_dict))
+        asyncio.run(postgres_sql_db.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id))
         response.status_code = status.HTTP_201_CREATED
         return {"message": "New event added"}
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
-    status_code, message = mongo_db.increase_vote(event.event_id, event.uuid)
+    print(event)
+    status_code, message = postgres_sql_db.increase_vote(event.event_id, event.uuid)
     response.status_code = status_code
     return {"message": message}
 
 
 @app.get("/winners/")
 def get_winners():
-    return mongo_db.get_winners()
+    return postgres_sql_db.get_winners()
 
 @app.get("/voiceOver/")
 def get_voice_over(content : str):
@@ -110,12 +113,12 @@ def get_voice_over(content : str):
 
 @app.get("/planets/")
 def get_planets():
-    return mongo_db.get_planets()
+    return postgres_sql_db.get_planets()
 
 @app.post("/planets/")
 def post_planets(new_planet: model.Planet, response: Response):
-    mongo_db.post_planet(new_planet)
-    return {"message": "New planet added"}
+    planet_id = postgres_sql_db.post_planet(new_planet)
+    return {"planet_id": planet_id}
 
 
 @app.get(

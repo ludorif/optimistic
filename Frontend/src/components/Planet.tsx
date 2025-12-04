@@ -47,11 +47,14 @@ export const ToggablePlanet = ({value, planetType}) =>{
     </>
 }
 
-export const ClickablePlanet = ({ planetName, planetType}) =>{
+export const ClickablePlanet = ({ planetName, planetType, planetId}) =>{
     const navigate = useNavigate();
-    function RedirectToHistory() {
+
+    function ChoosePlanet() {
+        console.log(planetId);
         localStorage.setItem("planetName", planetName)
         localStorage.setItem("planetType", planetType)
+        localStorage.setItem("planetId", planetId);
         navigate('/history')
     }
 
@@ -61,7 +64,7 @@ export const ClickablePlanet = ({ planetName, planetType}) =>{
         <Grid >
             <p>{planetName}</p>
             <Planet surfaceImage={GetSurfaceImage(planetType)} />
-            <Button variant="outlined" onClick={RedirectToHistory}> Select </Button>
+            <Button variant="outlined" onClick={ChoosePlanet}> Select </Button>
         </Grid>
 
     </>

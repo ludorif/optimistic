@@ -25,7 +25,6 @@ def generate_new_event(story : str):
     response_formatted = response_formatted.replace("```", "")
 
     response_dict = json.loads(response_formatted)
-    response_dict["_id"] = str(uuid.uuid4())
     response_dict["photoId"] = pexels_manager.get_photo_id(response_dict["title"])
     response_dict["date"] =  helper.get_utc_day()
     response_dict["votes"] = []

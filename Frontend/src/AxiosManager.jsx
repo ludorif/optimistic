@@ -13,7 +13,7 @@ export default function ExecuteRequest(promise, ResultFunction) {
                 return;
             }
 
-            const resultObject = JSON.parse(response.data);
+            const resultObject = response.data;
             if(Array.isArray(resultObject))
             {
                 const resultArray =[]
