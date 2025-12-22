@@ -47,24 +47,28 @@ export const ToggablePlanet = ({value, planetType}) =>{
     </>
 }
 
-export const ClickablePlanet = ({ planetName, planetType, planetId}) =>{
+export function useConfirmPlanet() {
     const navigate = useNavigate();
 
-    function ChoosePlanet() {
-        console.log(planetId);
-        localStorage.setItem("planetName", planetName)
-        localStorage.setItem("planetType", planetType)
+    return (planetName: string, planetType: string, planetId: string) => {
+        localStorage.setItem("planetName", planetName);
+        localStorage.setItem("planetType", planetType);
         localStorage.setItem("planetId", planetId);
-        navigate('/history')
-    }
+        localStorage.setItem("selectedDate", "");
 
+        navigate('/history');
+    };
+}
+
+export const ClickablePlanet = ({ planetName, planetType, planetId}) =>{
+    const confirmPlanet = useConfirmPlanet();
 
     return <>
 
         <Grid >
             <p>{planetName}</p>
             <Planet surfaceImage={GetSurfaceImage(planetType)} />
-            <Button variant="outlined" onClick={ChoosePlanet}> Select </Button>
+            <Button variant="outlined" onClick={()=>confirmPlanet(planetName, planetType, planetId)}> Select </Button>
         </Grid>
 
     </>

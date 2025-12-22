@@ -7,16 +7,19 @@ import ExecuteRequest from "../../AxiosManager";
 import axios from "axios";
 import titleStyle from "../../Helper";
 import {TextField, ToggleButtonGroup} from "@mui/material";
-import {ToggablePlanet} from "../../components/Planet";
+import {ConfirmPlanet, ToggablePlanet, useConfirmPlanet} from "../../components/Planet";
 import mars_surface from "../../assets/mars_surface.png";
 import lunar_surface from "../../assets/lunar_surface.jpg";
 import earth_surface from "../../assets/earth_surface.jpg";
 import Button from "@mui/material/Button";
+import choosePlanet from "./ChoosePlanet";
+import ChoosePlanet from "./ChoosePlanet";
 
 const CreateNewPlanet = () => {
     const [planetType, setPlanetType] = React.useState('moon');
     const planetNameRef = useRef<HTMLInputElement>(null);
     const planetStoryRef = useRef<HTMLInputElement>(null);
+    const confirmPlanet = useConfirmPlanet();
 
 
     const handlePlanetType = (event, newPlanetType) => {
@@ -25,7 +28,8 @@ const CreateNewPlanet = () => {
 
     function OnPlanetCreated(response){
         console.log(response);
-        localStorage.setItem("planetId", response.planet_id);
+
+        confirmPlanet(planetNameRef.current!.value, planetType, response.planet_id);
     }
 
     function CheckValues() {

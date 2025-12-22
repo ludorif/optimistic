@@ -59,7 +59,7 @@ const ToVotePage = () => {
                 story: newEventText.target.value,
                 event_date:GetTodayDateStr(),
                 uuid: localStorage.getItem('UUID') }), ForceRefresh)
-    }
+            }
 
     const GetProposeNewEventButtonOrError = () => {
 

@@ -1,10 +1,8 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
-import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy import create_engine, Column, Integer, String, text, DateTime, ForeignKey
 from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Session
 from sqlalchemy.sql.sqltypes import Boolean
@@ -12,7 +10,7 @@ from starlette import status
 
 
 Base = declarative_base()
-engine = create_engine(os.environ["POSTGRES_DB_URI"])
+engine = create_engine("sqlite:///optimistic_db.db")
 
 
 def create_all_tables():
@@ -26,23 +24,21 @@ class Planet(Base):
     type = Column(String)
     first_story = Column(String)
 
-    # one-to-many: Planet → Memories
-    memories = relationship("Memory", back_populates="planet")
+    # one-to-many: Planet → Events
+    events = relationship("Event", back_populates="planet")
 
 
 class User(Base):
     __tablename__ = "users"
     uuid = Column(String, primary_key=True)
 
-    # memories created by the user
-    memories = relationship("Memory", back_populates="client")
+    events = relationship("Event", back_populates="client")
 
-    # votes cast by the user
     votes = relationship("Vote", back_populates="user")
 
 
-class Memory(Base):
-    __tablename__ = "memories"
+class Event(Base):
+    __tablename__ = "events"
     id = Column(Integer, primary_key=True)
     title = Column(String)
     content = Column(String)
@@ -55,9 +51,9 @@ class Memory(Base):
     client_id = Column(String, ForeignKey("users.uuid"), nullable=False)
 
     # Relationships
-    planet = relationship("Planet", back_populates="memories")
-    client = relationship("User", back_populates="memories")
-    votes = relationship("Vote", back_populates="memory", cascade="all, delete-orphan")
+    planet = relationship("Planet", back_populates="events")
+    client = relationship("User", back_populates="events")
+    votes = relationship("Vote", back_populates="event", cascade="all, delete-orphan")
 
 
 class Vote(Base):
@@ -65,11 +61,11 @@ class Vote(Base):
     id = Column(Integer, primary_key=True)
 
     user_id = Column(String, ForeignKey("users.uuid"), nullable=False)
-    memory_id = Column(Integer, ForeignKey("memories.id"), nullable=False)
+    event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
 
     # Relationships
     user = relationship("User", back_populates="votes")
-    memory = relationship("Memory", back_populates="votes")
+    event = relationship("Event", back_populates="votes")
 
 
 
@@ -105,58 +101,67 @@ async def add_event_to_world(response_dict, client_uuid, planet_id):
                 session.add(user)
                 session.commit()
 
-            memory = Memory(
+            created_at_converted = datetime.strptime(
+                response_dict["date"],
+                "%Y-%m-%d"
+            ).replace(tzinfo=timezone.utc)
+
+            event = Event(
                 title=response_dict["title"],
                 content=response_dict["content"],
-                created_at=response_dict["date"],
+                created_at=created_at_converted,
                 photoId=response_dict["photoId"],
                 client_id=client_uuid,
                 did_win=False,
                 planet_id=planet_id
             )
 
-            session.add(memory)
+            session.add(event)
             session.commit()
     except Exception as e:
         print(e)
 
 
-def get_events(planet_id, date):
+def get_events(planet_id, date_str):
     query = """
         SELECT
-            m.*,
+            e.*,
             COUNT(v.id) AS vote_count
-        FROM memories m
-        LEFT JOIN votes v ON v.memory_id = m.id
+        FROM events e
+        LEFT JOIN votes v ON v.event_id = e.id
         WHERE planet_id = :planet_id
     """
 
     params = {"planet_id": planet_id}
 
-    if date:
-        query += " AND DATE(m.created_at) = DATE(:date)"
-        params["date"] = date
+    if date_str:
+        iso_date = datetime.fromisoformat(
+            date_str.replace("Z", "+00:00")
+        ).date()
+
+        query += " AND DATE(e.created_at) = DATE(:date)"
+        params["date"] = iso_date
 
     query += """ 
-        GROUP BY m.id
+        GROUP BY e.id
         ORDER BY created_at;"""
 
     result = engine.connect().execute(text(query), params)
 
-    memories = result.mappings().all()
-    return [dict(r) for r in memories]
+    events = result.mappings().all()
+    return [dict(r) for r in events]
 
 
 def get_dates():
-    result = engine.connect().execute(text('SELECT created_at FROM memories'))
-    memories = result.mappings().all()
-    return [dict(r) for r in memories]
+    result = engine.connect().execute(text('SELECT DISTINCT created_at FROM events'))
+    events = result.mappings().all()
+    return [dict(r) for r in events]
 
 
 def increase_vote(event_id, client_uuid):
     with Session(engine) as session:
         result = engine.connect().execute(
-            text("SELECT * FROM memories WHERE client_id = :client_id and id = :event_id"),
+            text("SELECT * FROM events WHERE client_id = :client_id and id = :event_id"),
             {"event_id": event_id,
                       "client_id": client_uuid}  # safe binding
         )
@@ -179,7 +184,7 @@ def increase_vote(event_id, client_uuid):
 
             vote = Vote(
                 user_id=client_uuid,
-                memory_id=event_id,
+                event_id=event_id,
             )
 
             session.add(vote)
@@ -194,17 +199,17 @@ def check_current_events(event_date, uuid):
     with Session(engine) as session:
         result = engine.connect().execute(text("""
             SELECT *
-            FROM memories m    
-            WHERE m.created_at = :date
+            FROM events e    
+            WHERE e.created_at = :date
             """),
     {"date": event_date})
 
         number_of_events = len( result.mappings().all())
-        user_already_participated = session.query(Memory.id).filter((Memory.client_id == uuid) & (Memory.created_at == event_date)).first() is not None
+        user_already_participated = session.query(Event.id).filter((Event.client_id == uuid) & (Event.created_at == event_date)).first() is not None
         return number_of_events, user_already_participated
 
 
 def get_winners():
-    result = engine.connect().execute(text('SELECT * FROM memories WHERE did_win = True'))
-    memories = result.mappings().all()
-    return [dict(r) for r in memories]
+    result = engine.connect().execute(text('SELECT * FROM events WHERE did_win = True'))
+    events = result.mappings().all()
+    return [dict(r) for r in events]
