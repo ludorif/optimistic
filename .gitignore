@@ -1,3 +1,4 @@
 .idea/
 Backend/outputs/
 Frontend/.env
+Backend/optimistic_db.db
