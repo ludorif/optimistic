@@ -266,3 +266,7 @@ def get_health():
                 print(f"❌ Foreign key issues found: {fk_issues}")
     except Exception as e:
         print(f"❌ Database error: {e}")
+
+
+def get_all_events_story(planet_id):
+    return get_events(planet_id, "")

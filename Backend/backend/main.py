@@ -1,7 +1,8 @@
 ﻿#  Copyright (c) 2025 Ludovic Riffiod
-import asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 
 #from . import mongo_db
 from . import model
@@ -9,10 +10,12 @@ from . import gemini_ai_manager
 from . import voice_over_manager
 from fastapi import FastAPI, Response, status, Request
 from fastapi.middleware.cors import CORSMiddleware
-from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
 from . import sqlite_db_manager
+from .model import NewEvent
+import asyncio
+
 
 app = FastAPI(redirect_slashes=False)
 app.add_middleware(
@@ -22,10 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-scheduler = BackgroundScheduler()
+scheduler = AsyncIOScheduler()
 
 def get_summary():
-    all_events = mongo_db.get_all_events_story()
+    all_events = sqlite_db_manager.get_all_events_story(1)
     all_events_str = ""
     for event in all_events:
         all_events_str = all_events_str + "\""+ event['content'] + "\","
@@ -46,10 +49,17 @@ def main():
 
     trigger = CronTrigger(hour=23, minute=59)  # midnight every day
     scheduler.add_job(define_winner, trigger)
-    scheduler.start()
     sqlite_db_manager.create_all_tables()
     print("started")
+    scheduler.add_job(create_fake_event, 'date', run_date=datetime.now() + timedelta(seconds=1))
+    scheduler.start()
 
+async def create_fake_event():
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    fake_new_event: model.NewEvent = NewEvent(story="test", event_date=today.strftime("%Y-%m-%d %H:%M:%S.%f"), uuid = str(uuid.uuid4()), planet_id = 1)
+    response : Response = Response()
+    await add_new_event(fake_new_event, response)
+    print(response.status_code)
 
 
 
@@ -78,10 +88,11 @@ def get_dates():
     return sqlite_db_manager.get_dates()
 
 @app.post("/events/")
-def add_new_event(new_event: model.NewEvent, request: Request, response: Response):
+async def add_new_event(new_event: model.NewEvent, response: Response):
     number_of_events, user_already_participated = sqlite_db_manager.check_current_events(new_event.event_date, new_event.uuid)
 
-    print(number_of_events)
+    print("number_of_events ", number_of_events)
+
     if user_already_participated:
         response.status_code = status.HTTP_403_FORBIDDEN
         return {"message":"Already participated"}
@@ -89,10 +100,14 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
         response.status_code = status.HTTP_403_FORBIDDEN
         return {"message": "Enough events for today"}
     else:
-        response_dict = gemini_ai_manager.generate_new_event(new_event.story)
-        asyncio.run(sqlite_db_manager.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id))
+        await add_new_event_internal(new_event)
         response.status_code = status.HTTP_201_CREATED
         return {"message": "New event added"}
+
+async def add_new_event_internal(new_event: model.NewEvent):
+    response_dict = gemini_ai_manager.generate_new_event(new_event.story)
+    await sqlite_db_manager.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id)
+
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
