@@ -39,8 +39,8 @@ async def define_winner():
     today = datetime.now(UTC)
     print("define_winner")
     success = sqlite_db_manager.define_winner(today.strftime("%Y-%m-%d"))
-    if success ==  True:
-        await generate_summary_and_comic()
+    #if success ==  True:
+    #    await generate_summary_and_comic()
 
 
 
@@ -50,9 +50,11 @@ def main():
     trigger = CronTrigger(hour=23, minute=59)  # midnight every day
     scheduler.add_job(define_winner, trigger)
     sqlite_db_manager.create_all_tables()
-    print("started")
-    scheduler.add_job(create_fake_event, 'date', run_date=datetime.now() + timedelta(seconds=1))
+
+    scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
     scheduler.start()
+
+    print("started")
 
 async def create_fake_event():
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
