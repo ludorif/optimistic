@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler  # runs tasks in the background
 from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
-from . import postgres_sql_db
+from . import sqlite_db_manager
 
 app = FastAPI(redirect_slashes=False)
 app.add_middleware(
@@ -22,7 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+scheduler = BackgroundScheduler()
 
 def get_summary():
     all_events = mongo_db.get_all_events_story()
@@ -35,7 +35,7 @@ def get_summary():
 async def define_winner():
     today = datetime.now(UTC)
     print("define_winner")
-    success = mongo_db.define_winner(today.strftime("%Y-%m-%d"))
+    success = sqlite_db_manager.define_winner(today.strftime("%Y-%m-%d"))
     if success ==  True:
         await generate_summary_and_comic()
 
@@ -43,12 +43,11 @@ async def define_winner():
 
 def main():
     print("starting")
-    # Set up the scheduler
-    scheduler = BackgroundScheduler()
+
     trigger = CronTrigger(hour=23, minute=59)  # midnight every day
     scheduler.add_job(define_winner, trigger)
     scheduler.start()
-    postgres_sql_db.create_all_tables()
+    sqlite_db_manager.create_all_tables()
     print("started")
 
 
@@ -72,15 +71,15 @@ async def lifespan(app: FastAPI):
 
 @app.get("/events/")
 def get_events(planet_id : int, date : str | None = ""):
-    return postgres_sql_db.get_events(planet_id, date)
+    return sqlite_db_manager.get_events(planet_id, date)
 
 @app.get("/events/dates")
 def get_dates():
-    return postgres_sql_db.get_dates()
+    return sqlite_db_manager.get_dates()
 
 @app.post("/events/")
 def add_new_event(new_event: model.NewEvent, request: Request, response: Response):
-    number_of_events, user_already_participated = postgres_sql_db.check_current_events(new_event.event_date, new_event.uuid)
+    number_of_events, user_already_participated = sqlite_db_manager.check_current_events(new_event.event_date, new_event.uuid)
 
     print(number_of_events)
     if user_already_participated:
@@ -91,21 +90,21 @@ def add_new_event(new_event: model.NewEvent, request: Request, response: Respons
         return {"message": "Enough events for today"}
     else:
         response_dict = gemini_ai_manager.generate_new_event(new_event.story)
-        asyncio.run(postgres_sql_db.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id))
+        asyncio.run(sqlite_db_manager.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id))
         response.status_code = status.HTTP_201_CREATED
         return {"message": "New event added"}
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
     print(event)
-    status_code, message = postgres_sql_db.increase_vote(event.event_id, event.uuid)
+    status_code, message = sqlite_db_manager.increase_vote(event.event_id, event.uuid)
     response.status_code = status_code
     return {"message": message}
 
 
 @app.get("/winners/")
 def get_winners():
-    return postgres_sql_db.get_winners()
+    return sqlite_db_manager.get_winners()
 
 @app.get("/voiceOver/")
 def get_voice_over(content : str):
@@ -113,11 +112,11 @@ def get_voice_over(content : str):
 
 @app.get("/planets/")
 def get_planets():
-    return postgres_sql_db.get_planets()
+    return sqlite_db_manager.get_planets()
 
 @app.post("/planets/")
 def post_planets(new_planet: model.Planet, response: Response):
-    planet_id = postgres_sql_db.post_planet(new_planet)
+    planet_id = sqlite_db_manager.post_planet(new_planet)
     return {"planet_id": planet_id}
 
 
@@ -130,7 +129,7 @@ def post_planets(new_planet: model.Planet, response: Response):
     response_model=model.HealthCheck,
 )
 def get_health() -> model.HealthCheck:
-    mongo_db.get_health()
+    sqlite_db_manager.get_health()
     return model.HealthCheck(status="OK")
 
 main()

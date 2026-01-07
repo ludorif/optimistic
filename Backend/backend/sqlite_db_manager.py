@@ -213,3 +213,56 @@ def get_winners():
     result = engine.connect().execute(text('SELECT * FROM events WHERE did_win = True'))
     events = result.mappings().all()
     return [dict(r) for r in events]
+
+
+def define_winner(today_date):
+    planet_id_temp = 1
+    today_events = get_events(planet_id_temp, today_date)
+
+
+    if len(today_events) == 0:
+        print("no events")
+        return False
+
+
+    winner = today_events[0]
+
+    for event in today_events:
+        if len(event["votes"]) > len(winner["votes"]):
+            winner = event
+
+    engine.connect().execute(text("""
+        UPDATE events 
+        set did_win = True 
+        where id = :event_id   
+        """),
+{"event_id": winner["id"]})
+
+    return True
+
+
+def get_health():
+    """
+        Check SQLite database health using SQLAlchemy.
+
+        Args:
+            db_url (str): SQLAlchemy database URL, e.g., "sqlite:///mydatabase.db"
+            backup_path (str): Optional path to save a backup of the database
+        """
+    try:
+        with engine.connect() as conn:
+            # 1. Integrity check
+            result = conn.execute(text("PRAGMA integrity_check;")).fetchone()
+            if result[0] == "ok":
+                print("✅ Integrity check passed.")
+            else:
+                print(f"❌ Integrity check failed: {result[0]}")
+
+            # 2. Foreign key check
+            fk_issues = conn.execute(text("PRAGMA foreign_key_check;")).fetchall()
+            if not fk_issues:
+                print("✅ Foreign key check passed.")
+            else:
+                print(f"❌ Foreign key issues found: {fk_issues}")
+    except Exception as e:
+        print(f"❌ Database error: {e}")
