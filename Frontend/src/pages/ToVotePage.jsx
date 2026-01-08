@@ -19,7 +19,8 @@ const ToVotePage = () => {
             localStorage.setItem('UUID', crypto.randomUUID());
         }
 
-        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&?date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
+        console.log(GetTodayDateStr());
+        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
     function ForceRefresh(error) {

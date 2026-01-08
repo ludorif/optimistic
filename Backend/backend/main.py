@@ -51,8 +51,8 @@ def main():
     scheduler.add_job(define_winner, trigger)
     sqlite_db_manager.create_all_tables()
 
-    scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
-    scheduler.start()
+    scheduler.add_job(create_fake_event, 'date', run_date=datetime.now() + timedelta(seconds=1))
+    #scheduler.start()
 
     print("started")
 
@@ -91,25 +91,7 @@ def get_dates():
 
 @app.post("/events/")
 async def add_new_event(new_event: model.NewEvent, response: Response):
-    number_of_events, user_already_participated = sqlite_db_manager.check_current_events(new_event.event_date, new_event.uuid)
-
-    print("number_of_events ", number_of_events)
-
-    if user_already_participated:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"message":"Already participated"}
-    elif number_of_events >= 3:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"message": "Enough events for today"}
-    else:
-        await add_new_event_internal(new_event)
-        response.status_code = status.HTTP_201_CREATED
-        return {"message": "New event added"}
-
-async def add_new_event_internal(new_event: model.NewEvent):
-    response_dict = gemini_ai_manager.generate_new_event(new_event.story)
-    await sqlite_db_manager.add_event_to_world(response_dict, new_event.uuid, new_event.planet_id)
-
+    return await sqlite_db_manager.add_new_event(new_event, response)
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):

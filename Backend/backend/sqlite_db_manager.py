@@ -101,3 +101,7 @@ def get_health():
 
 def get_all_events_story(planet_id):
     return get_events(planet_id, "")
+
+
+async def add_new_event(new_event, response):
+    return await event.add_new_event(engine, new_event, response)

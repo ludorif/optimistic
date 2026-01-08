@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, text
 from sqlalchemy.orm import relationship, Session
 from starlette import status
 
-from .user import User
+from .user import add_user_if_missing
 from .base import Base
 
 def increase_vote(engine, event_id, client_uuid):
@@ -26,11 +26,7 @@ def increase_vote(engine, event_id, client_uuid):
             return status.HTTP_403_FORBIDDEN, "You already voted for this event"
 
         try:
-            user = User(
-                uuid=client_uuid
-            )
-            session.add(user)
-            session.commit()
+            add_user_if_missing(engine, session, client_uuid)
 
             vote = Vote(
                 user_id=client_uuid,
