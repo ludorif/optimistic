@@ -1,21 +1,47 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+import uuid
+
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, text
 from sqlalchemy.orm import relationship, Session
 from starlette import status
 
+from .planet import get_planets
 from .user import add_user_if_missing
-from .base import Base
+from .base import Base, SessionLocal, engine
 from datetime import datetime, timezone
 
 from .. import model, gemini_ai_manager
 from starlette.responses import Response
 
+from ..model import NewEvent
 
-async def add_event_to_world(engine, response_dict, client_uuid, planet_id):
+
+async def add_new_event(new_event: model.NewEvent, response: Response):
+    number_of_events, user_already_participated = check_current_events( new_event.event_date, new_event.uuid, new_event.planet_id)
+
+    print("number_of_events ", number_of_events)
+
+    if user_already_participated:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {"message": "Already participated"}
+    elif number_of_events >= 3:
+        response.status_code = status.HTTP_403_FORBIDDEN
+        return {"message": "Enough events for today"}
+    else:
+        await add_new_event_internal( new_event)
+        response.status_code = status.HTTP_201_CREATED
+        return {"message": "New event added"}
+
+async def add_new_event_internal( new_event: model.NewEvent):
+    response_dict = gemini_ai_manager.generate_new_event(new_event.story)
+    await add_event_to_world( response_dict, new_event.uuid, new_event.planet_id)
+
+
+async def add_event_to_world( response_dict, client_uuid, planet_id):
     try:
-        with Session(engine) as session:
-            add_user_if_missing(engine, session, client_uuid)
+       with SessionLocal() as session:
+            add_user_if_missing( session, client_uuid)
 
             created_at_converted = datetime.strptime(
                 response_dict["date"],
@@ -37,8 +63,19 @@ async def add_event_to_world(engine, response_dict, client_uuid, planet_id):
     except Exception as e:
         print(e)
 
+def get_dates(planet_id):
+    query = """
+            SELECT DISTINCT created_at
+            FROM events 
+            WHERE planet_id = :planet_id
+        """
 
-def get_events(engine, planet_id, date_str):
+    params = {"planet_id": planet_id}
+    result = engine.connect().execute(text(query), params)
+    events = result.mappings().all()
+    return [dict(r) for r in events]
+
+def get_events( planet_id, date_str):
     query = """
         SELECT
             e.*,
@@ -70,44 +107,24 @@ def get_events(engine, planet_id, date_str):
     return [dict(r) for r in events]
 
 
-def get_dates(engine):
-    result = engine.connect().execute(text('SELECT DISTINCT created_at FROM events'))
-    events = result.mappings().all()
-    return [dict(r) for r in events]
-
-
-def check_current_events(engine, event_date, uuid):
-    with Session(engine) as session:
-        result = engine.connect().execute(text("""
-            SELECT *
-            FROM events e    
-            WHERE e.created_at = :date
-            """),
-    {"date": event_date})
-
-        number_of_events = len( result.mappings().all())
-        user_already_participated = session.query(Event.id).filter((Event.client_id == uuid) & (Event.created_at == event_date)).first() is not None
+def check_current_events( event_date, client_uuid, planet_id):
+   with SessionLocal() as session:
+        dic_results = get_events( planet_id, event_date)
+        number_of_events = len( dic_results)
+        user_already_participated = session.query(Event.id).filter((Event.client_id == client_uuid) & (Event.created_at == event_date)).first() is not None
         return number_of_events, user_already_participated
 
-async def add_new_event(engine, new_event: model.NewEvent, response: Response):
-    number_of_events, user_already_participated = check_current_events(engine, new_event.event_date, new_event.uuid)
+async def create_fake_event():
+    today_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_date_str = today_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+    planets = get_planets()
 
-    print("number_of_events ", number_of_events)
+    for planet in planets:
+        fake_new_event: model.NewEvent = NewEvent(story="", event_date= today_date_str, uuid=str(uuid.uuid4()), planet_id=planet["id"])
+        response: Response = Response()
+        await add_new_event( fake_new_event, response)
+        print("created fake event for planet: "+ planet["name"]+" status code : "+ str(response.status_code))
 
-    if user_already_participated:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"message": "Already participated"}
-    elif number_of_events >= 3:
-        response.status_code = status.HTTP_403_FORBIDDEN
-        return {"message": "Enough events for today"}
-    else:
-        await add_new_event_internal(engine, new_event)
-        response.status_code = status.HTTP_201_CREATED
-        return {"message": "New event added"}
-
-async def add_new_event_internal(engine, new_event: model.NewEvent):
-    response_dict = gemini_ai_manager.generate_new_event(new_event.story)
-    await add_event_to_world(engine, response_dict, new_event.uuid, new_event.planet_id)
 
 class Event(Base):
     __tablename__ = "events"
@@ -126,3 +143,5 @@ class Event(Base):
     planet = relationship("Planet", back_populates="events")
     client = relationship("User", back_populates="events")
     votes = relationship("Vote", back_populates="event", cascade="all, delete-orphan")
+
+

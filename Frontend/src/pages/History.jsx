@@ -16,7 +16,7 @@ const History = () => {
 
 
     useEffect(() => {
-        ExecuteRequest(axios.get('events/dates'), UpdateDates);
+        ExecuteRequest(axios.get(`events/dates?planet_id=${localStorage.getItem('planetId')}`), UpdateDates);
 
         const savedDate = localStorage.getItem('selectedDate');
         console.log(savedDate);

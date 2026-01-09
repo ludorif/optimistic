@@ -29,7 +29,7 @@ const ToVotePage = () => {
     }
 
     function VoteFor(eventId) {
-        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID')},{
+        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID'), planet_id: Number(localStorage.getItem('planetId'))},{
             headers: {
                 'Content-Type': 'application/json'
             }

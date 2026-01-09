@@ -1,38 +1,37 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
 
-from sqlalchemy import create_engine,text
+from sqlalchemy import text
 
+from . import model
 from .db import planet, event, vote, base
+from .db.base import engine
 
-
-
-engine = create_engine("sqlite:///optimistic_db.db")
 
 def create_all_tables():
     base.Base.metadata.create_all(engine)
 
 def post_planet(new_planet):
-    return planet.post_planet(engine, new_planet)
+    return planet.post_planet( new_planet)
 
 def get_planets():
-    return planet.get_planets(engine)
+    return planet.get_planets()
 
 
 async def add_event_to_world(response_dict, client_uuid, planet_id):
-    await event.add_event_to_world(engine, response_dict, client_uuid, planet_id)
+    await event.add_event_to_world( response_dict, client_uuid, planet_id)
 
 
 def get_events(planet_id, date_str):
-   return event.get_events(engine, planet_id, date_str)
+   return event.get_events( planet_id, date_str)
 
 
-def get_dates():
-    return event.get_dates(engine)
+def get_dates(planet_id):
+    return event.get_dates(planet_id)
 
 
-def increase_vote(event_id, client_uuid):
-   return vote.increase_vote(engine, event_id, client_uuid)
+def increase_vote(existing_event: model.ExistingEvent):
+   return vote.increase_vote( existing_event)
 
 
 def get_winners():
@@ -104,4 +103,12 @@ def get_all_events_story(planet_id):
 
 
 async def add_new_event(new_event, response):
-    return await event.add_new_event(engine, new_event, response)
+    return await event.add_new_event( new_event, response)
+
+
+async def create_fake_event():
+    return await event.create_fake_event()
+
+
+def fake_vote():
+    vote.fake_vote()

@@ -5,24 +5,35 @@ import json
 
 from google import genai
 
-from backend import helper
-from backend import pexels_manager
+from . import helper
+from . import pexels_manager
 
 
-def generate_new_event(story : str):
+def generate_new_event(story : str | None = ""):
     client = genai.Client()
+
+    request = "Imagine a newspaper's one sentence article based on"
+    if story == "":
+        request += " a one sentence story (human like) you will generate."
+    else:
+        request += f" this event: \"{story}\"."
+
+    request += """It should be overly optimistic and always climate positive."
+    Propose only 1 choice. 
+    Return a valid json with the title and the content.
+    Do not return the story."""
+
 
     response = client.models.generate_content(
         model="gemini-2.5-flash-lite",
-        contents=f"Imagine a newspaper's  one sentence article based on this event: \"{story}\"."
-                 f"It should be overly optimistic and always climate positive."
-                 f"Propose only 1 choice. "
-                 f"Return a valid json with the title and the content."
+        contents=request
     )
 
     #clean response
     response_formatted =  response.text.replace("```json", "")
     response_formatted = response_formatted.replace("```", "")
+
+    #print(response_formatted)
 
     response_dict = json.loads(response_formatted)
     response_dict["photoId"] = pexels_manager.get_photo_id(response_dict["title"])

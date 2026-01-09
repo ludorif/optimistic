@@ -7,6 +7,7 @@ class Date(BaseModel):
 class ExistingEvent(BaseModel):
     event_id: int
     uuid: str
+    planet_id: int
 
 class NewEvent(BaseModel):
     story: str

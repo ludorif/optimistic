@@ -2,10 +2,10 @@
 #
 from sqlalchemy import Column, String, text
 from sqlalchemy.orm import relationship, Session
-from .base import Base
+from .base import Base, engine
 
 
-def add_user_if_missing(engine, session, client_uuid):
+def add_user_if_missing( session, client_uuid):
     result = engine.connect().execute(
         text("SELECT * FROM users WHERE uuid = :client_id "),
         {"client_id": client_uuid}  # safe binding

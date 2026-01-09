@@ -43,25 +43,30 @@ async def define_winner():
     #    await generate_summary_and_comic()
 
 
-
 def main():
     print("starting")
 
-    trigger = CronTrigger(hour=23, minute=59)  # midnight every day
-    scheduler.add_job(define_winner, trigger)
     sqlite_db_manager.create_all_tables()
 
-    scheduler.add_job(create_fake_event, 'date', run_date=datetime.now() + timedelta(seconds=1))
-    #scheduler.start()
+    for hour_int in range(8, 12, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0)
+        scheduler.add_job(create_fake_event, trigger)
+
+    for hour_int in range(14, 20, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0)
+        scheduler.add_job(fake_vote, trigger)
+
+
+    trigger = CronTrigger(hour=23, minute=59)  # midnight every day
+    scheduler.add_job(define_winner, trigger)
+
+    #to test
+    #scheduler.add_job(fake_vote, 'date', run_date=datetime.now() + timedelta(seconds=1))
+    scheduler.start()
 
     print("started")
 
-async def create_fake_event():
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    fake_new_event: model.NewEvent = NewEvent(story="test", event_date=today.strftime("%Y-%m-%d %H:%M:%S.%f"), uuid = str(uuid.uuid4()), planet_id = 1)
-    response : Response = Response()
-    await add_new_event(fake_new_event, response)
-    print(response.status_code)
+
 
 
 
@@ -86,8 +91,8 @@ def get_events(planet_id : int, date : str | None = ""):
     return sqlite_db_manager.get_events(planet_id, date)
 
 @app.get("/events/dates")
-def get_dates():
-    return sqlite_db_manager.get_dates()
+def get_dates(planet_id : int):
+    return sqlite_db_manager.get_dates(planet_id)
 
 @app.post("/events/")
 async def add_new_event(new_event: model.NewEvent, response: Response):
@@ -95,8 +100,7 @@ async def add_new_event(new_event: model.NewEvent, response: Response):
 
 @app.put("/events/")
 def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
-    print(event)
-    status_code, message = sqlite_db_manager.increase_vote(event.event_id, event.uuid)
+    status_code, message = sqlite_db_manager.increase_vote(event)
     response.status_code = status_code
     return {"message": message}
 
@@ -117,6 +121,13 @@ def get_planets():
 def post_planets(new_planet: model.Planet, response: Response):
     planet_id = sqlite_db_manager.post_planet(new_planet)
     return {"planet_id": planet_id}
+
+
+async def create_fake_event():
+    await sqlite_db_manager.create_fake_event()
+
+def fake_vote():
+    sqlite_db_manager.fake_vote()
 
 
 @app.get(
