@@ -41,7 +41,7 @@ async def add_new_event_internal( new_event: model.NewEvent):
 async def add_event_to_world( response_dict, client_uuid, planet_id):
     try:
        with SessionLocal() as session:
-            add_user_if_missing( session, client_uuid)
+            add_user_if_missing( client_uuid)
 
             created_at_converted = datetime.strptime(
                 response_dict["date"],
@@ -64,47 +64,49 @@ async def add_event_to_world( response_dict, client_uuid, planet_id):
         print(e)
 
 def get_dates(planet_id):
-    query = """
-            SELECT DISTINCT created_at
-            FROM events 
+    with SessionLocal() as session:
+        query = """
+                SELECT DISTINCT created_at
+                FROM events 
+                WHERE planet_id = :planet_id
+            """
+
+        params = {"planet_id": planet_id}
+        result = session.execute(text(query), params)
+        events = result.mappings().all()
+        return [dict(r) for r in events]
+
+def get_events( planet_id, date_str):
+    with SessionLocal() as session:
+        query = """
+            SELECT
+                e.*,
+                COUNT(v.id) AS vote_count
+            FROM events e
+            LEFT JOIN votes v ON v.event_id = e.id
             WHERE planet_id = :planet_id
         """
 
-    params = {"planet_id": planet_id}
-    result = engine.connect().execute(text(query), params)
-    events = result.mappings().all()
-    return [dict(r) for r in events]
-
-def get_events( planet_id, date_str):
-    query = """
-        SELECT
-            e.*,
-            COUNT(v.id) AS vote_count
-        FROM events e
-        LEFT JOIN votes v ON v.event_id = e.id
-        WHERE planet_id = :planet_id
-    """
-
-    params = {"planet_id": planet_id}
+        params = {"planet_id": planet_id}
 
 
-    if date_str:
-        iso_date = datetime.fromisoformat(
-            date_str.replace("Z", "+00:00")
-        ).date()
+        if date_str:
+            iso_date = datetime.fromisoformat(
+                date_str.replace("Z", "+00:00")
+            ).date()
 
-        query += " AND DATE(e.created_at) = DATE(:date)"
-        params["date"] = iso_date
+            query += " AND DATE(e.created_at) = DATE(:date)"
+            params["date"] = iso_date
 
-    query += """ 
-        GROUP BY e.id
-        ORDER BY created_at;"""
+        query += """ 
+            GROUP BY e.id
+            ORDER BY created_at;"""
 
 
-    result = engine.connect().execute(text(query), params)
+        result = session.execute(text(query), params)
 
-    events = result.mappings().all()
-    return [dict(r) for r in events]
+        events = result.mappings().all()
+        return [dict(r) for r in events]
 
 
 def check_current_events( event_date, client_uuid, planet_id):

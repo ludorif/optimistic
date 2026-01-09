@@ -17,8 +17,8 @@ from .. import model
 
 
 def increase_vote(existing_event: model.ExistingEvent):
-   with (SessionLocal() as session):
-        result = engine.connect().execute(
+   with SessionLocal() as session:
+        result = session.execute(
             text("SELECT * FROM events WHERE client_id = :client_id and id = :event_id and planet_id = :planet_id"),
             {"event_id": existing_event.event_id, "client_id": existing_event.uuid, "planet_id": existing_event.planet_id},
         )
@@ -37,7 +37,7 @@ def increase_vote(existing_event: model.ExistingEvent):
             return status.HTTP_403_FORBIDDEN, "You already voted for an event today"
 
         try:
-            add_user_if_missing(session, client_uuid)
+            add_user_if_missing(client_uuid)
 
             vote = Vote(
                 user_id=client_uuid,

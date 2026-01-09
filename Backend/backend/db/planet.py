@@ -1,9 +1,8 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
-from boto3 import Session
 from sqlalchemy import Column, Integer, String, text
 from sqlalchemy.orm import relationship
-from .base import Base, SessionLocal, engine
+from .base import Base, SessionLocal
 
 
 def post_planet(new_planet):
@@ -15,9 +14,10 @@ def post_planet(new_planet):
 
 
 def get_planets():
-    result = engine.connect().execute(text('SELECT * FROM planets'))
-    planets = result.mappings().all()
-    return [dict(row) for row in planets]
+    with SessionLocal() as session:
+        result = session.execute(text('SELECT * FROM planets'))
+        planets = result.mappings().all()
+        return [dict(row) for row in planets]
 
 
 class Planet(Base):

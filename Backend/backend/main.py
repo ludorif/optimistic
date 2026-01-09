@@ -121,7 +121,7 @@ def get_planets():
     return sqlite_db_manager.get_planets()
 
 @app.post("/planets/")
-def post_planets(new_planet: model.Planet, response: Response):
+def post_planets(new_planet: model.Planet):
     planet_id = sqlite_db_manager.post_planet(new_planet)
     return {"planet_id": planet_id}
 

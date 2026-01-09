@@ -1,24 +1,25 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
 from sqlalchemy import Column, String, text
-from sqlalchemy.orm import relationship, Session
-from .base import Base, engine
+from sqlalchemy.orm import relationship
+from .base import Base, SessionLocal
 
 
-def add_user_if_missing( session, client_uuid):
-    result = engine.connect().execute(
-        text("SELECT * FROM users WHERE uuid = :client_id "),
-        {"client_id": client_uuid}  # safe binding
-    )
-
-    exists = result.fetchall()
-
-    if not exists:
-        user = User(
-            uuid=client_uuid
+def add_user_if_missing( client_uuid):
+    with SessionLocal() as session:
+        result = session.execute(
+            text("SELECT * FROM users WHERE uuid = :client_id "),
+            {"client_id": client_uuid}  # safe binding
         )
-        session.add(user)
-        session.commit()
+
+        exists = result.fetchall()
+
+        if not exists:
+            user = User(
+                uuid=client_uuid
+            )
+            session.add(user)
+            session.commit()
 
 class User(Base):
     __tablename__ = "users"

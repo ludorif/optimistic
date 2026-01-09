@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from . import model
 from .db import planet, event, vote, base
-from .db.base import engine
+from .db.base import engine, SessionLocal
 
 
 def create_all_tables():
@@ -35,9 +35,10 @@ def increase_vote(existing_event: model.ExistingEvent):
 
 
 def get_winners():
-    result = engine.connect().execute(text('SELECT * FROM events WHERE did_win = True'))
-    events = result.mappings().all()
-    return [dict(r) for r in events]
+    with SessionLocal() as session:
+        result = session.execute(text('SELECT * FROM events WHERE did_win = True'))
+        events = result.mappings().all()
+        return [dict(r) for r in events]
 
 
 def define_winner(today_date):
@@ -80,16 +81,16 @@ def get_health():
             backup_path (str): Optional path to save a backup of the database
         """
     try:
-        with engine.connect() as conn:
+        with SessionLocal() as session:
             # 1. Integrity check
-            result = conn.execute(text("PRAGMA integrity_check;")).fetchone()
+            result = session.execute(text("PRAGMA integrity_check;")).fetchone()
             if result[0] == "ok":
                 print("✅ Integrity check passed.")
             else:
                 print(f"❌ Integrity check failed: {result[0]}")
 
             # 2. Foreign key check
-            fk_issues = conn.execute(text("PRAGMA foreign_key_check;")).fetchall()
+            fk_issues = session.execute(text("PRAGMA foreign_key_check;")).fetchall()
             if not fk_issues:
                 print("✅ Foreign key check passed.")
             else:
