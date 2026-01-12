@@ -1,4 +1,6 @@
 ﻿#  Copyright (c) 2025 Ludovic Riffiod
+from zoneinfo import ZoneInfo
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import uuid
 from contextlib import asynccontextmanager
@@ -28,7 +30,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-scheduler = AsyncIOScheduler()
+TIMEZONE = ZoneInfo("UTC")
+scheduler = AsyncIOScheduler(timezone=TIMEZONE)
 
 def get_summary():
     all_events = sqlite_db_manager.get_all_events_story(1)
@@ -41,7 +44,7 @@ def get_summary():
 async def define_winner():
     today = datetime.now(UTC)
     print("define_winner")
-    success = sqlite_db_manager.define_winner(today.strftime("%Y-%m-%d"))
+    success = sqlite_db_manager.define_all_winners()
     #if success ==  True:
     #    await generate_summary_and_comic()
 
@@ -51,25 +54,24 @@ def main():
 
     sqlite_db_manager.create_all_tables()
 
-    for hour_int in range(8, 12, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0)
+    for hour_int in range(8, 14, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
         scheduler.add_job(create_fake_event, trigger)
 
-    for hour_int in range(14, 20, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0)
+    for hour_int in range(14, 22, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
         scheduler.add_job(fake_vote, trigger)
 
 
-    trigger = CronTrigger(hour=23, minute=59)  # midnight every day
-    scheduler.add_job(define_winner, trigger)
+    trigger = CronTrigger(hour=23, minute=59)
+    scheduler.add_job(define_winner, trigger, timezone=TIMEZONE)
 
     #to test
-    #scheduler.add_job(fake_vote, 'date', run_date=datetime.now() + timedelta(seconds=1))
+    #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
+
+
     scheduler.start()
-
     print("started")
-
-
 
 
 

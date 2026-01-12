@@ -109,6 +109,41 @@ def get_events( planet_id, date_str):
         return [dict(r) for r in events]
 
 
+def define_all_winners():
+    today_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_date_str = today_date.strftime("%Y-%m-%d %H:%M:%S.%f")
+    planets = get_planets()
+    for planet in planets:
+        define_winner( today_date_str, planet["id"])
+
+
+def define_winner(today_date_str, planet_id):
+    today_events = get_events(planet_id, today_date_str)
+
+    if len(today_events) == 0:
+        print("no events")
+        return False
+
+    winner = today_events[0]
+
+    for today_event in today_events:
+        if today_event["vote_count"] > winner["vote_count"]:
+            winner = today_event
+
+    print("winner is", winner["title"], " for planet ", planet_id)
+
+    with engine.begin() as conn:
+        conn.execute(
+            text("""
+                UPDATE events
+                SET did_win = TRUE
+                WHERE id = :event_id
+            """),
+            {"event_id": winner["id"]}
+        )
+
+    return True
+
 def check_current_events( event_date, client_uuid, planet_id):
    with SessionLocal() as session:
         dic_results = get_events( planet_id, event_date)

@@ -40,36 +40,9 @@ def get_winners():
         events = result.mappings().all()
         return [dict(r) for r in events]
 
+def define_all_winners():
+    return event.define_all_winners()
 
-def define_winner(today_date):
-    planet_id_temp = 1
-    today_events = get_events(planet_id_temp, today_date)
-
-
-    if len(today_events) == 0:
-        print("no events")
-        return False
-
-
-    winner = today_events[0]
-
-    for today_event in today_events:
-        if today_event["vote_count"] > winner["vote_count"]:
-            winner = event
-
-    print(winner["id"])
-
-    with engine.begin() as conn:  # begin() automatically commits
-        conn.execute(
-            text("""
-                UPDATE events
-                SET did_win = TRUE
-                WHERE id = :event_id
-            """),
-            {"event_id": winner["id"]}
-        )
-
-    return True
 
 
 def get_health():
