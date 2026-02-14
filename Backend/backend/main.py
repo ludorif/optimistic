@@ -54,8 +54,6 @@ def main():
 
     sqlite_db_manager.create_all_tables()
 
-    '''
-    Disable fake events for now 
     for hour_int in range(8, 14, 2):
         trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
         scheduler.add_job(create_fake_event, trigger)
@@ -63,7 +61,6 @@ def main():
     for hour_int in range(14, 22, 2):
         trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
         scheduler.add_job(fake_vote, trigger)
-    '''
 
 
     trigger = CronTrigger(hour=23, minute=59)
