@@ -6,17 +6,24 @@ import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
 import titleStyle from "../Helper.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 const History = () => {
     const [dates, setDates] = useState(null)
     const [historyPerDate, setHistoryPerDate] = useState(null)
     const [selectedDate, setSelectedDate] = useState("");
-
+    const navigate = useNavigate();
 
 
     useEffect(() => {
-        ExecuteRequest(axios.get(`events/dates?planet_id=${localStorage.getItem('planetId')}`), UpdateDates);
+        const planetId = localStorage.getItem('planetId');
+        if(planetId == null)
+        {
+            navigate('/Planet');
+        }
+
+        ExecuteRequest(axios.get(`events/dates?planet_id=${planetId}`), UpdateDates);
 
         const savedDate = localStorage.getItem('selectedDate');
         console.log(savedDate);

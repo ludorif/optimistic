@@ -18,7 +18,6 @@ const Layout = () => {
         { path: "/vote", label: "To vote" },
         { path: "/winners", label: "Winners" },
         { path: "/planet", label: "Planet" },
-        { path: "/summary", label: "Summary" },
     ];
 
     const [anchorEl, setAnchorEl] = useState(null);

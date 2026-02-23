@@ -49,7 +49,7 @@ async def define_winner():
     #    await generate_summary_and_comic()
 
 
-def main():
+async def main():
     print("starting")
 
     sqlite_db_manager.create_all_tables()

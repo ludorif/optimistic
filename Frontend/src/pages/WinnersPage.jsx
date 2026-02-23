@@ -7,6 +7,7 @@ import Grid from "@mui/material/Grid";
 //Copyright (c) 2025 Ludovic Riffiod
 import ArcherContainer from '../LocalPackage/react-archer-feature-react-19-migration/src/ArcherContainer/ArcherContainer';
 import titleStyle from "../Helper.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 
@@ -16,6 +17,14 @@ function WinnersPage () {
     const [winners, setWinners] = useState([])
     const itemsRef = useRef(null);
     let count = 0;
+    const navigate = useNavigate()
+    const planetId = localStorage.getItem('planetId');
+    
+    if(planetId == null)
+    {
+        navigate('/Planet');
+    }
+
 
     function UpdateWinners(winnersArray) {
         setWinners(winnersArray);
@@ -62,6 +71,8 @@ function WinnersPage () {
         localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
         setAllEvents(localAllEvents)
     }
+
+
 
     useEffect(()=>{
         ExecuteRequest(axios.get("winners/"), UpdateWinners);

@@ -14,7 +14,7 @@ interface ChoosePlanetProps {
 
 const ChoosePlanet : React.FC<ChoosePlanetProps> = ({ OnClickFunction, Planets }) => {
     return (<>
-        <h1 style={titleStyle}>Check planet story</h1>
+        <h1 style={titleStyle}>Choose a planet</h1>
         <Button onClick={OnClickFunction} variant="contained">New Planet</Button>
         <Grid container justifyContent="center" alignItems="center" spacing={1}
               sx={{justifyContent: "space-between"}}>

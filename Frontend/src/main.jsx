@@ -8,7 +8,6 @@ import ToVotePage from "./pages/ToVotePage";
 import WinnersPage from "./pages/WinnersPage.jsx";
 import PlanetPage from "./pages/Planets/PlanetPage.tsx";
 import axios from "axios";
-import SummaryPage from "./pages/SummaryPage.jsx";
 
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -24,7 +23,6 @@ export default function App() {
                     <Route path="vote" element={<ToVotePage />} />
                     <Route path="winners" element={<WinnersPage />} />
                     <Route path="planet" element={<PlanetPage />} />
-                    <Route path="summary" element={<SummaryPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>

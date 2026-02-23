@@ -5,6 +5,7 @@ import OpEventToVoteOn from "../components/OpEventToVoteOn.jsx";
 import ExecuteRequest, {GetTodayDateStr} from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
 import titleStyle from "../Helper.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 const ToVotePage = () => {
@@ -12,8 +13,15 @@ const ToVotePage = () => {
     const [toRefresh, setToRefresh] = useState(0);
     const [newEventText, setNewEventText] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate()
 
     useEffect(() => {
+        const planetId = localStorage.getItem('planetId');
+        if(planetId == null)
+        {
+            navigate('/Planet');
+        }
+
         const uuid = localStorage.getItem('UUID');
         if(uuid == null) {
             localStorage.setItem('UUID', crypto.randomUUID());
