@@ -6,7 +6,7 @@
 - $env:PEXELS_API_KEY=
 
 ## Commands
-- (local) fastapi dev backend/Main.py --port 5001
+- (local)  uvicorn backend.main:app --host 0.0.0.0 --port 5001 --reload
 - docker build -t optimistic-docker -f Backend/Dockerfile .
 - docker run -d -p 5001:5001 optimistic-docker
 

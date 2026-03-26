@@ -29,7 +29,7 @@ const HomePage = () => {
                         <strong>Backend:</strong> Python with FastAPI
                     </li>
                     <li>
-                        <strong>Frontend:</strong> React (JavaScript)
+                        <strong>Frontend:</strong> React (Typescript)
                     </li>
                     <li>
                         <strong>AI:</strong> Gemini API to generate events from user stories
@@ -38,7 +38,7 @@ const HomePage = () => {
                         <strong>Media:</strong> Pexels API for imagery
                     </li>
                     <li>
-                        <strong>Database:</strong> MongoDB
+                        <strong>Database:</strong> Sqlite
                     </li>
                     <li>
                         <strong>Hosting:</strong> Render.com
