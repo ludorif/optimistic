@@ -2,7 +2,9 @@
  * Copyright (c) 2025 Ludovic Riffiod
  */
 
-const titleStyle = {
+import React from "react";
+
+const titleStyle : React.CSSProperties = {
     fontSize: '2.5rem',
     fontWeight: '700',
     color: '#4A90E2',

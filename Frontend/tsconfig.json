@@ -7,7 +7,8 @@
     "resolveJsonModule": true,
     "strict": true,
     "noImplicitAny": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "target": "es2020"
   },
-  "include": ["src/**/*", "declaration.d.ts"]
+  "include": ["src/**/*", "declaration.d.ts", "vite-env.d.ts"]
 }

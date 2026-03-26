@@ -8,13 +8,13 @@ import axios from "axios";
 var globalVar = "";
 
 
-function PlayAudio(audioUrl){
+function PlayAudio(audioUrl: { path: string | undefined; }){
     const audio = new Audio(audioUrl.path);
     audio.onended = () => {globalVar = ""};
     audio.play().catch(err => console.log("Playback error:", err));
 }
 
-function RequestVoiceOver(content){
+function RequestVoiceOver(content: any){
     console.log(globalVar);
     if(globalVar == "true"){
         return;

@@ -1,7 +1,7 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
-export default function ExecuteRequest(promise, ResultFunction) {
+export default function ExecuteRequest(promise : any, ResultFunction : any) {
     promise
-        .then(response => {
+        .then((response: { data: []; }) => {
             if(ResultFunction === null)
             {
                 return;
@@ -29,7 +29,7 @@ export default function ExecuteRequest(promise, ResultFunction) {
                 ResultFunction(resultObject);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             ResultFunction(error);
             console.error('There was an error!', error);
         });

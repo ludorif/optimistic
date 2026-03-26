@@ -5,9 +5,10 @@ import Layout from "./pages/Layout";
 import History from "./pages/History";
 import HomePage from "./pages/HomePage";
 import ToVotePage from "./pages/ToVotePage";
-import WinnersPage from "./pages/WinnersPage.jsx";
-import PlanetPage from "./pages/Planets/PlanetPage.tsx";
+import WinnersPage from "./pages/WinnersPage";
+import PlanetPage from "./pages/Planets/PlanetPage";
 import axios from "axios";
+import React from "react";
 
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -29,5 +30,11 @@ export default function App() {
     );
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+    throw new Error("Root element not found");
+}
+
+const root = ReactDOM.createRoot(rootElement);
 root.render(<App />);

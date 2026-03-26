@@ -9,10 +9,10 @@ import {useNavigate} from "react-router-dom";
 
 
 const ToVotePage = () => {
-    const [eventsToVoteOn, setEventsToVoteOn] = useState(null)
+    const [eventsToVoteOn, setEventsToVoteOn] = useState<React.JSX.Element[]>([])
     const [toRefresh, setToRefresh] = useState(0);
-    const [newEventText, setNewEventText] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
+    const [newEventText, setNewEventText] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -31,12 +31,12 @@ const ToVotePage = () => {
         ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
-    function ForceRefresh(error) {
+    function ForceRefresh(error: any) {
         setToRefresh(toRefresh + 1)
         setErrorMessage(error == null ? "" :error.response.data.message)
     }
 
-    function VoteFor(eventId) {
+    function VoteFor(eventId : number) {
         ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID'), planet_id: Number(localStorage.getItem('planetId'))},{
             headers: {
                 'Content-Type': 'application/json'
@@ -44,7 +44,7 @@ const ToVotePage = () => {
         }), ForceRefresh);
     }
 
-    function UpdateEventsToVoteOn(eventsArray) {
+    function UpdateEventsToVoteOn(eventsArray: OEvent[]) {
         console.log(eventsArray);
         const eventsMap = eventsArray.map(item => (
                 <OpEventToVoteOn
@@ -57,7 +57,7 @@ const ToVotePage = () => {
         setEventsToVoteOn(eventsMap)
     }
 
-    function OnTextChanged(newEventText) {
+    function OnTextChanged(newEventText: string) {
         setNewEventText(newEventText);
     }
 
@@ -65,7 +65,7 @@ const ToVotePage = () => {
         ExecuteRequest(axios.post('events/',
             {
                 planet_id: Number(localStorage.getItem('planetId')),
-                story: newEventText.target.value,
+                story: newEventText,
                 event_date:GetTodayDateStr(),
                 uuid: localStorage.getItem('UUID') }), ForceRefresh)
             }
@@ -77,7 +77,7 @@ const ToVotePage = () => {
         return enoughEvents ?
             <p style={{color: "red"}}> Max events for today</p> :
             <>
-                <input onChange={OnTextChanged}/>
+                <input onChange={(e)=> OnTextChanged(e.currentTarget.value)}/>
                 <button onClick={OnSubmitPressed}>Propose new event</button>
             </>
     }

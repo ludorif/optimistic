@@ -13,24 +13,24 @@ import {useNavigate} from "react-router-dom";
 
 
 function WinnersPage () {
-    const [allEvents, setAllEvents] = useState([])
-    const [winners, setWinners] = useState([])
+    const [allEvents, setAllEvents] = useState<React.JSX.Element[]>([])
+    const [winners, setWinners] = useState<OEvent[]>([])
     const itemsRef = useRef(null);
     let count = 0;
     const navigate = useNavigate()
     const planetId = localStorage.getItem('planetId');
-    
+
     if(planetId == null)
     {
         navigate('/Planet');
     }
 
 
-    function UpdateWinners(winnersArray) {
+    function UpdateWinners(winnersArray: OEvent[]) {
         setWinners(winnersArray);
     }
 
-    function GenerateNewOpEvent(event) {
+    function GenerateNewOpEvent(event) :  React.JSX.Element {
         const isWinner = winners.find((item) => item.id === event.id) != null;
 
 
@@ -44,13 +44,13 @@ function WinnersPage () {
 
     }
 
-    function GenerateNewLine(lineContent, lineIndex) {
+    function GenerateNewLine(lineContent : React.JSX.Element[], lineIndex : number) : React.JSX.Element {
     return <Grid height={750} container justifyContent="center" alignItems="center" spacing={1} ref={itemsRef} size={10} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
     }
 
-    function UpdateAllEvents(eventsArray) {
-        let localAllEvents = []
-        let lineContent = [];
+    function UpdateAllEvents(eventsArray: OEvent[]) {
+        let localAllEvents: React.JSX.Element[]  = []
+        let lineContent : React.JSX.Element[] = [];
         let date = Date.parse(eventsArray[0].created_at);
         let lineIndex = 0;
 

@@ -1,17 +1,16 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
 
-import OpEvent from "../components/OpEvent.jsx";
+import OpEvent from "../components/OpEvent";
 import React, {useEffect, useState} from "react";
-import ExecuteRequest from "../AxiosManager.jsx";
+import ExecuteRequest from "../AxiosManager";
 import axios from "axios";
 import Grid from "@mui/material/Grid";
-import titleStyle from "../Helper.jsx";
 import {useNavigate} from "react-router-dom";
 
 
 const History = () => {
-    const [dates, setDates] = useState(null)
-    const [historyPerDate, setHistoryPerDate] = useState(null)
+    const [dates, setDates] = useState<React.JSX.Element[]>([])
+    const [historyPerDate, setHistoryPerDate] = useState<React.JSX.Element[]>([])
     const [selectedDate, setSelectedDate] = useState("");
     const navigate = useNavigate();
 
@@ -34,7 +33,7 @@ const History = () => {
     }, []);
 
 
-    function UpdateDates(datesArray) {
+    function UpdateDates(datesArray: ODate[]) {
 
         datesArray.forEach(date => {
             console.log(date);
@@ -48,7 +47,7 @@ const History = () => {
         OnDateChanged(savedDate);
     }
 
-    function UpdateHistory(eventsArray) {
+    function UpdateHistory(eventsArray: OEvent[]) {
         const eventsMap = eventsArray.map(item =>
             (
                 <Grid size={4}>
@@ -58,7 +57,7 @@ const History = () => {
         setHistoryPerDate(eventsMap);
     }
 
-    function OnDateChanged(newDate)
+    function OnDateChanged(newDate: string)
     {
         localStorage.setItem('selectedDate', newDate);
         setSelectedDate(newDate);
@@ -68,7 +67,7 @@ const History = () => {
 
     return <div>
         <br/>
-        <h1 style={titleStyle}>History</h1>
+        <h2>History</h2>
         <select name="dateSelector" id="dateSelector"
                 value={selectedDate}
                 onChange={(e) => OnDateChanged(e.target.value)} >
