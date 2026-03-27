@@ -1,25 +1,25 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+from fastapi import Depends
 from sqlalchemy import Column, String, text
-from sqlalchemy.orm import relationship
-from .base import Base, SessionLocal
+from sqlalchemy.orm import relationship, Session
+from .base import Base, SessionLocal, get_db
 
 
-def add_user_if_missing( client_uuid):
-    with SessionLocal() as session:
-        result = session.execute(
-            text("SELECT * FROM users WHERE uuid = :client_id "),
-            {"client_id": client_uuid}  # safe binding
+def add_user_if_missing( client_uuid, session: Session ):
+    result = session.execute(
+        text("SELECT * FROM users WHERE uuid = :client_id "),
+        {"client_id": client_uuid}  # safe binding
+    )
+
+    exists = result.fetchall()
+
+    if not exists:
+        user = User(
+            uuid=client_uuid
         )
-
-        exists = result.fetchall()
-
-        if not exists:
-            user = User(
-                uuid=client_uuid
-            )
-            session.add(user)
-            session.commit()
+        session.add(user)
+        session.commit()
 
 class User(Base):
     __tablename__ = "users"

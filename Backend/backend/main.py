@@ -6,15 +6,18 @@ import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, UTC, timedelta
 
+from sqlalchemy.orm.session import Session
+
 #from . import mongo_db
 from . import model
 from . import gemini_ai_manager
 from . import voice_over_manager
-from fastapi import FastAPI, Response, status, Request
+from fastapi import FastAPI, Response, status, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
 from . import sqlite_db_manager
+from .db.base import get_db
 from .model import NewEvent
 import asyncio
 
@@ -70,7 +73,7 @@ def main():
     #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
 
 
-    scheduler.start()
+    #scheduler.start()
     print("started")
 
 
@@ -92,47 +95,49 @@ async def lifespan(app: FastAPI):
 
 
 @app.get("/events/")
-def get_events(planet_id : int, date : str | None = ""):
-    return sqlite_db_manager.get_events(planet_id, date)
+def get_events(planet_id : int, date : str | None = "", session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_events(planet_id, date, session)
 
-@app.get("/events/dates")
-def get_dates(planet_id : int):
-    return sqlite_db_manager.get_dates(planet_id)
+@app.get("/events/dates/")
+def get_dates(planet_id : int, session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_dates(planet_id, session)
 
 @app.post("/events/")
-async def add_new_event(new_event: model.NewEvent, response: Response):
-    return await sqlite_db_manager.add_new_event(new_event, response)
+async def add_new_event(new_event: model.NewEvent, response: Response, session: Session = Depends(get_db)):
+    return await sqlite_db_manager.add_new_event(new_event, response, session)
 
 @app.put("/events/")
-def increase_vote(event: model.ExistingEvent, request: Request,  response: Response):
-    status_code, message = sqlite_db_manager.increase_vote(event)
+def increase_vote(event: model.ExistingEvent, request: Request,  response: Response, session: Session = Depends(get_db)):
+    status_code, message = sqlite_db_manager.increase_vote(event, session)
     response.status_code = status_code
     return {"message": message}
 
 
 @app.get("/winners/")
-def get_winners():
-    return sqlite_db_manager.get_winners()
+def get_winners(session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_winners(session)
 
 @app.get("/voiceOver/")
-def get_voice_over(content : str):
+def get_voice_over(content : str, session: Session = Depends(get_db)):
     return voice_over_manager.generate_text(content)
 
 @app.get("/planets/")
-def get_planets():
-    return sqlite_db_manager.get_planets()
+def get_planets(session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_planets(session)
 
 @app.post("/planets/")
-def post_planets(new_planet: model.Planet):
-    planet_id = sqlite_db_manager.post_planet(new_planet)
+def post_planets(new_planet: model.Planet, session: Session = Depends(get_db)):
+    planet_id = sqlite_db_manager.post_planet(new_planet, session)
     return {"planet_id": planet_id}
 
 
 async def create_fake_event():
-    await sqlite_db_manager.create_fake_event()
+    session: Session = get_db()
+    await sqlite_db_manager.create_fake_event(session)
 
 def fake_vote():
-    sqlite_db_manager.fake_vote()
+    session: Session = get_db()
+    sqlite_db_manager.fake_vote(session)
 
 
 @app.get(
@@ -143,8 +148,8 @@ def fake_vote():
     status_code=status.HTTP_200_OK,
     response_model=model.HealthCheck,
 )
-def get_health() -> model.HealthCheck:
-    sqlite_db_manager.get_health()
+def get_health(session: Session = Depends(get_db)) -> model.HealthCheck:
+    sqlite_db_manager.get_health(session)
     return model.HealthCheck(status="OK")
 
 main()

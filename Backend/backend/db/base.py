@@ -14,3 +14,7 @@ engine = create_engine(
     max_overflow=0
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+def get_db():
+    db = SessionLocal()
+    yield db
