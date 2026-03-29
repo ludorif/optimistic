@@ -15,17 +15,21 @@ if db_path is not None:
     engine = create_engine(
         db_path,
         connect_args={"check_same_thread": False},
-        pool_size=5,
-        max_overflow=0
+        pool_size=10,
+        max_overflow=20,
+        pool_timeout=30,
     )
     sql_model.Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def get_db():
     connection = engine.connect()
-    session = SessionLocal(bind=connection)
+    db = SessionLocal(bind=connection)
 
-    yield session
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def post_planet(new_planet, session: Session):
