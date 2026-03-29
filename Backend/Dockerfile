@@ -10,4 +10,4 @@ COPY Backend/backend ./backend
 
 EXPOSE 5001
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "5001", "--reload"]
+CMD ["poetry", "run", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "5001"]
