@@ -3,13 +3,12 @@
 import random
 from datetime import datetime
 
-from fastapi import Depends
 from sqlalchemy import Column, Integer, String, ForeignKey, text
 from sqlalchemy.orm import relationship, Session
 from starlette import status
 
 from .user import add_user_if_missing
-from .base import Base, SessionLocal, engine, get_db
+from .base import Base
 from .event import get_events
 from .planet import get_planets
 import uuid

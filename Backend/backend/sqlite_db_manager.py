@@ -6,11 +6,9 @@ from sqlalchemy.orm import Session
 
 from . import model
 from .db import planet, event, vote, base
-from .db.base import engine, SessionLocal, get_db
 
 
-def create_all_tables():
-    base.Base.metadata.create_all(engine)
+
 
 def post_planet(new_planet, session: Session):
     return planet.post_planet( new_planet, session)

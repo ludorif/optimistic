@@ -55,8 +55,6 @@ async def define_winner():
 def main():
     print("starting")
 
-    sqlite_db_manager.create_all_tables()
-
     for hour_int in range(8, 14, 2):
         trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
         scheduler.add_job(create_fake_event, trigger)

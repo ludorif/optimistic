@@ -9,13 +9,13 @@ from starlette import status
 
 from .planet import get_planets
 from .user import add_user_if_missing
-from .base import Base, SessionLocal, engine, get_db
+from .base import Base
 from datetime import datetime, timezone
 
 from .. import model, gemini_ai_manager
 from starlette.responses import Response
 
-from ..model import NewEvent
+from ..model import NewEvent, ExistingEvent
 
 
 async def add_new_event(new_event: model.NewEvent, response: Response, session: Session):
@@ -100,7 +100,7 @@ def get_events( planet_id, date_str, session: Session ):
         GROUP BY e.id
         ORDER BY created_at;"""
 
-
+    #session.get(ExistingEvent, params)
     result = session.execute(text(query), params)
 
     events = result.mappings().all()
@@ -130,15 +130,14 @@ def define_winner(today_date_str, planet_id, session: Session):
 
     print("winner is", winner["title"], " for planet ", planet_id)
 
-    with engine.begin() as conn:
-        conn.execute(
-            text("""
-                UPDATE events
-                SET did_win = TRUE
-                WHERE id = :event_id
-            """),
-            {"event_id": winner["id"]}
-        )
+    session.execute(
+        text("""
+            UPDATE events
+            SET did_win = TRUE
+            WHERE id = :event_id
+        """),
+        {"event_id": winner["id"]}
+    )
 
     return True
 

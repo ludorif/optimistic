@@ -15,14 +15,13 @@ engine = create_engine(
     "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
 )
+Base.metadata.create_all(engine)
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 @pytest.fixture
 def db():
     connection = engine.connect()
     transaction = connection.begin()
-
-    Base.metadata.create_all(bind=connection)
 
     session = TestingSessionLocal(bind=connection)
 

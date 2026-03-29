@@ -3,7 +3,7 @@
 from fastapi import Depends
 from sqlalchemy import Column, String, text
 from sqlalchemy.orm import relationship, Session
-from .base import Base, SessionLocal, get_db
+from .base import Base
 
 
 def add_user_if_missing( client_uuid, session: Session ):
