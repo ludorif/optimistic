@@ -17,9 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
 from . import sqlite_db_manager
-from .db.base import get_db
-from .model import NewEvent
-import asyncio
+from .sqlite_db_manager import get_db
 
 
 app = FastAPI(redirect_slashes=False)

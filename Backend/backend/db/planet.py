@@ -1,9 +1,9 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
-from fastapi import Depends
-from sqlalchemy import Column, Integer, String, text
-from sqlalchemy.orm import relationship, Session
-from .base import Base
+from sqlalchemy import  text
+from sqlalchemy.orm import  Session
+
+from backend.db.sql_model import Planet
 
 
 def post_planet(new_planet, session: Session ):
@@ -19,12 +19,3 @@ def get_planets(session: Session ):
     return [dict(row) for row in planets]
 
 
-class Planet(Base):
-    __tablename__ = "planets"
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    type = Column(String)
-    first_story = Column(String)
-
-    # one-to-many: Planet → Events
-    events = relationship("Event", back_populates="planet")

@@ -3,7 +3,8 @@
 from fastapi import Depends
 from sqlalchemy import Column, String, text
 from sqlalchemy.orm import relationship, Session
-from .base import Base
+
+from .sql_model import User
 
 
 def add_user_if_missing( client_uuid, session: Session ):
@@ -21,8 +22,3 @@ def add_user_if_missing( client_uuid, session: Session ):
         session.add(user)
         session.commit()
 
-class User(Base):
-    __tablename__ = "users"
-    uuid = Column(String, primary_key=True)
-    events = relationship("Event", back_populates="client")
-    votes = relationship("Vote", back_populates="user")

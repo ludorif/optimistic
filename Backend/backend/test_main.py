@@ -7,9 +7,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from backend.db.base import get_db, Base
+from backend.sqlite_db_manager import get_db
 from backend.main import app
 from backend.model import NewEvent
+from backend.db.sql_model import Base
 
 engine = create_engine(
     "sqlite:///:memory:",

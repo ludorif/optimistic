@@ -1,13 +1,31 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+import os
+
 from fastapi import Depends
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy import text, create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from . import model
-from .db import planet, event, vote, base
+from .db import planet, event, vote, sql_model
 
 
+db_path : str = os.environ.get("SQLITE_DB_PATH")
+
+engine = create_engine(
+    db_path,
+    connect_args={"check_same_thread": False},
+    pool_size=5,
+    max_overflow=0
+)
+sql_model.Base.metadata.create_all(bind=engine)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+def get_db():
+    connection = engine.connect()
+    session = SessionLocal(bind=connection)
+
+    yield session
 
 
 def post_planet(new_planet, session: Session):

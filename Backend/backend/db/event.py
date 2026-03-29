@@ -8,8 +8,8 @@ from sqlalchemy.orm import relationship, Session
 from starlette import status
 
 from .planet import get_planets
+from .sql_model import Event
 from .user import add_user_if_missing
-from .base import Base
 from datetime import datetime, timezone
 
 from .. import model, gemini_ai_manager
@@ -159,22 +159,6 @@ async def create_fake_event(session: Session):
         print("created fake event for planet: "+ planet["name"]+" status code : "+ str(response.status_code))
 
 
-class Event(Base):
-    __tablename__ = "events"
-    id = Column(Integer, primary_key=True)
-    title = Column(String)
-    content = Column(String)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    photoId = Column(String)
-    did_win = Column(Boolean, default=False, nullable=False)
 
-    # Foreign keys
-    planet_id = Column(Integer, ForeignKey("planets.id"), nullable=False)
-    client_id = Column(String, ForeignKey("users.uuid"), nullable=False)
-
-    # Relationships
-    planet = relationship("Planet", back_populates="events")
-    client = relationship("User", back_populates="events")
-    votes = relationship("Vote", back_populates="event", cascade="all, delete-orphan")
 
 

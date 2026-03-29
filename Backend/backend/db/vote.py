@@ -3,12 +3,12 @@
 import random
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, ForeignKey, text
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy import text
+from sqlalchemy.orm import  Session
 from starlette import status
 
+from .sql_model import Vote
 from .user import add_user_if_missing
-from .base import Base
 from .event import get_events
 from .planet import get_planets
 import uuid
@@ -64,13 +64,3 @@ def fake_vote(session: Session):
         result = increase_vote(existing_event, session)
         print("fake vote for event: "+ random_event["title"]+" in planet : "+str(planet["id"])+" result : "+ str(result))
 
-class Vote(Base):
-    __tablename__ = "votes"
-    id = Column(Integer, primary_key=True)
-
-    user_id = Column(String, ForeignKey("users.uuid"), nullable=False)
-    event_id = Column(Integer, ForeignKey("events.id"), nullable=False)
-
-    # Relationships
-    user = relationship("User", back_populates="votes")
-    event = relationship("Event", back_populates="votes")
