@@ -2,11 +2,11 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock* ./
+COPY Backend/pyproject.toml Backend/poetry.lock* ./
 RUN pip install poetry
 RUN poetry install --no-root
 
-COPY backend ./backend
+COPY Backend/backend ./backend
 
 EXPOSE 5001
 
