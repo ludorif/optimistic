@@ -148,4 +148,5 @@ def get_health(session: Session = Depends(get_db)) -> model.HealthCheck:
     sqlite_db_manager.get_health(session)
     return model.HealthCheck(status="OK")
 
-main()
+if __name__ == "__main__":
+    main()
