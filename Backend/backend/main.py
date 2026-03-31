@@ -69,7 +69,7 @@ def main():
     #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
 
 
-    #scheduler.start()
+    scheduler.start()
     print("started")
 
 
