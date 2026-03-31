@@ -19,8 +19,32 @@ from . import comic_ai_manager
 from . import sqlite_db_manager
 from .sqlite_db_manager import get_db
 
+@asynccontextmanager
+async def lifespan(fast_api_app: FastAPI):
+    print("starting")
 
-app = FastAPI(redirect_slashes=False)
+    for hour_int in range(8, 14, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
+        scheduler.add_job(create_fake_event, trigger)
+
+    for hour_int in range(14, 22, 2):
+        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
+        scheduler.add_job(fake_vote, trigger)
+
+
+    trigger = CronTrigger(hour=23, minute=59)
+    scheduler.add_job(define_winner, trigger, timezone=TIMEZONE)
+
+    #to test
+    #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
+
+
+    scheduler.start()
+    print("started")
+
+    yield
+
+app = FastAPI(redirect_slashes=False, lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -50,27 +74,6 @@ async def define_winner():
     #    await generate_summary_and_comic()
 
 
-def main():
-    print("starting")
-
-    for hour_int in range(8, 14, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
-        scheduler.add_job(create_fake_event, trigger)
-
-    for hour_int in range(14, 22, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
-        scheduler.add_job(fake_vote, trigger)
-
-
-    trigger = CronTrigger(hour=23, minute=59)
-    scheduler.add_job(define_winner, trigger, timezone=TIMEZONE)
-
-    #to test
-    #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
-
-
-    scheduler.start()
-    print("started")
 
 
 
@@ -148,5 +151,3 @@ def get_health(session: Session = Depends(get_db)) -> model.HealthCheck:
     sqlite_db_manager.get_health(session)
     return model.HealthCheck(status="OK")
 
-if __name__ == "__main__":
-    main()
