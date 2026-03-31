@@ -22,7 +22,7 @@ const History = () => {
             navigate('/Planet');
         }
 
-        ExecuteRequest(axios.get(`events/dates?planet_id=${planetId}`), UpdateDates);
+        ExecuteRequest(axios.get(`events/dates/?planet_id=${planetId}`), UpdateDates);
 
         const savedDate = localStorage.getItem('selectedDate');
         console.log(savedDate);
