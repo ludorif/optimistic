@@ -10,7 +10,7 @@ from . import model
 from .db import planet, event, vote, sql_model
 
 SessionLocal : sessionmaker[Session]
-db_path : str  = "sqlite:///storage/optimistic_db.db"
+db_path : str  = os.environ.get("SQLITE_DB_PATH")
 engine = create_engine(
     db_path,
     connect_args={"check_same_thread": False},

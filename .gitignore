@@ -3,3 +3,4 @@ Backend/outputs/
 Frontend/.env
 Backend/optimistic_db.db
 Backend/storage/
+*.bak

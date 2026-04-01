@@ -33,6 +33,7 @@ jobs:
         working-directory: Backend
         run: poetry run pytest
         env:
+          SQLITE_DB_PATH: ${{ secrets.SQLITE_DB_PATH }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
 
