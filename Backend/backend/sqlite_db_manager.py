@@ -9,23 +9,20 @@ from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from . import model
 from .db import planet, event, vote, sql_model
 
-
-db_path : str | None = os.environ.get("SQLITE_DB_PATH")
-if db_path is not None:
-    engine = create_engine(
-        db_path,
-        connect_args={"check_same_thread": False},
-        pool_size=10,
-        max_overflow=20,
-        pool_timeout=30,
-    )
-    sql_model.Base.metadata.create_all(bind=engine)
-    SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal : sessionmaker[Session]
+db_path : str  = "sqlite:///storage/optimistic_db.db"
+engine = create_engine(
+    db_path,
+    connect_args={"check_same_thread": False},
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+)
+sql_model.Base.metadata.create_all(bind=engine)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def get_db():
-    connection = engine.connect()
-    db = SessionLocal(bind=connection)
-
+    db = SessionLocal()
     try:
         yield db
     finally:

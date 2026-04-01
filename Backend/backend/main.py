@@ -131,11 +131,13 @@ def post_planets(new_planet: model.Planet, session: Session = Depends(get_db)):
 
 
 async def create_fake_event():
-    session: Session = get_db()
+    from backend.sqlite_db_manager import SessionLocal
+    session: Session = SessionLocal()
     await sqlite_db_manager.create_fake_event(session)
 
 def fake_vote():
-    session: Session = get_db()
+    from backend.sqlite_db_manager import SessionLocal
+    session: Session = SessionLocal()
     sqlite_db_manager.fake_vote(session)
 
 
