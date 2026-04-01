@@ -17,7 +17,7 @@ fd, path = tempfile.mkstemp(suffix=".db")
 os.close(fd)
 
 engine = create_engine(
-    f"sqlite:///{path}",
+    "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
 )
 Base.metadata.create_all(engine)
