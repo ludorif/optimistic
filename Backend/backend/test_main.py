@@ -1,4 +1,5 @@
 ﻿import json
+import tempfile
 import uuid
 import os
 
@@ -12,8 +13,11 @@ from backend.main import app
 from backend.model import NewEvent
 from backend.db.sql_model import Base
 
+fd, path = tempfile.mkstemp(suffix=".db")
+os.close(fd)
+
 engine = create_engine(
-    "sqlite:///:memory:",
+    f"sqlite:///{path}",
     connect_args={"check_same_thread": False},
 )
 Base.metadata.create_all(engine)
