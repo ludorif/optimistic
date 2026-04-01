@@ -21,28 +21,23 @@ connection = engine.connect()  # single connection for everything
 Base.metadata.create_all(bind=connection)
 TestingSessionLocal = sessionmaker(bind=connection, autoflush=False, autocommit=False)
 
+# DB fixture
 @pytest.fixture
 def db():
-    connection = engine.connect()
-    transaction = connection.begin()
+    session = TestingSessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
 
-    session = TestingSessionLocal(bind=connection)
-
-    yield session
-
-    session.close()
-    transaction.rollback()  # 🔥 wipes all changes
-    connection.close()
-
+# Client fixture
 @pytest.fixture
 def client(db):
     def override_get_db():
         yield db
 
     app.dependency_overrides[get_db] = override_get_db
-
     yield TestClient(app)
-
     app.dependency_overrides.clear()
 
 
