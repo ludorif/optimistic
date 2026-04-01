@@ -13,15 +13,13 @@ from backend.main import app
 from backend.model import NewEvent
 from backend.db.sql_model import Base
 
-fd, path = tempfile.mkstemp(suffix=".db")
-os.close(fd)
-
 engine = create_engine(
     "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
 )
-Base.metadata.create_all(engine)
-TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+connection = engine.connect()  # single connection for everything
+Base.metadata.create_all(bind=connection)
+TestingSessionLocal = sessionmaker(bind=connection, autoflush=False, autocommit=False)
 
 @pytest.fixture
 def db():
