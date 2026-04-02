@@ -44,7 +44,6 @@ async def lifespan(fast_api_app: FastAPI):
 
     scheduler.start()
     print("started")
-    await generate_summary_and_comic()
     yield
 
     # Ensure the scheduler shuts down properly on application exit.
