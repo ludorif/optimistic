@@ -138,6 +138,7 @@ def define_winner(today_date_str, planet_id, session: Session):
         """),
         {"event_id": winner["id"]}
     )
+    session.commit()
 
     return True
 

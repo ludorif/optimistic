@@ -28,7 +28,7 @@ class Planet(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     type = Column(String)
-    first_story = Column(String)
+    summary = Column(String)
 
     # one-to-many: Planet → Events
     events = relationship("Event", back_populates="planet")
@@ -49,3 +49,4 @@ class Vote(Base):
     # Relationships
     user = relationship("User", back_populates="votes")
     event = relationship("Event", back_populates="votes")
+

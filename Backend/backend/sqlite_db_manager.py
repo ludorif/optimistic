@@ -35,6 +35,12 @@ def post_planet(new_planet, session: Session):
 def get_planets(session: Session):
     return planet.get_planets(session)
 
+def get_summary(planet_id, session: Session):
+    return planet.get_summary(planet_id, session)
+
+def update_summary(planet_id, summary_content, session: Session):
+    return planet.update_summary(planet_id, summary_content, session)
+
 
 async def add_event_to_world(response_dict, client_uuid, planet_id, session: Session):
     await event.add_event_to_world( response_dict, client_uuid, planet_id, session)
@@ -57,8 +63,8 @@ def get_winners(session: Session ):
     events = result.mappings().all()
     return [dict(r) for r in events]
 
-def define_all_winners():
-    return event.define_all_winners()
+def define_all_winners(session: Session):
+    return event.define_all_winners(session)
 
 
 
@@ -102,3 +108,5 @@ async def create_fake_event(session: Session):
 
 def fake_vote(session: Session):
     vote.fake_vote(session)
+
+

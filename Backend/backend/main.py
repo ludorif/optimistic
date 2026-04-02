@@ -35,14 +35,20 @@ async def lifespan(fast_api_app: FastAPI):
     trigger = CronTrigger(hour=23, minute=59)
     scheduler.add_job(define_winner, trigger, timezone=TIMEZONE)
 
+    trigger = CronTrigger(day_of_week='sun', hour=1)
+    scheduler.add_job(generate_summary_and_comic, trigger, timezone=TIMEZONE)
+
     #to test
     #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
 
 
     scheduler.start()
     print("started")
-
+    await generate_summary_and_comic()
     yield
+
+    # Ensure the scheduler shuts down properly on application exit.
+    scheduler.shutdown()
 
 app = FastAPI(redirect_slashes=False, lifespan=lifespan)
 app.add_middleware(
@@ -58,8 +64,8 @@ app.add_middleware(
 TIMEZONE = ZoneInfo("UTC")
 scheduler = AsyncIOScheduler(timezone=TIMEZONE)
 
-def get_summary():
-    all_events = sqlite_db_manager.get_all_events_story(1)
+def create_summary(planet_id : int, session: Session):
+    all_events = sqlite_db_manager.get_all_events_story(planet_id, session)
     all_events_str = ""
     for event in all_events:
         all_events_str = all_events_str + "\""+ event['content'] + "\","
@@ -67,30 +73,30 @@ def get_summary():
 
 #@app.get("/define_winner/")
 async def define_winner():
-    today = datetime.now(UTC)
     print("define_winner")
-    success = sqlite_db_manager.define_all_winners()
-    #if success ==  True:
-    #    await generate_summary_and_comic()
-
-
+    from backend.sqlite_db_manager import SessionLocal
+    session: Session = SessionLocal()
+    sqlite_db_manager.define_all_winners(session)
 
 
 
 @app.get("/summary/")
-def get_summary():
-    return mongo_db.get_summary(1)
+def get_summary(planet_id : int, session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_summary(planet_id, session)
 
 async def generate_summary_and_comic():
-    summary_content = get_summary()
-    mongo_db.update_summary(1, summary_content)
-    await comic_ai_manager.generate(summary_content)
+    from backend.sqlite_db_manager import SessionLocal
+    session: Session = SessionLocal()
+    planets = get_planets( session)
+    for planet in planets:
+        planet_id = planet['id']
+        summary_content = create_summary(planet_id, session)
+        sqlite_db_manager.update_summary(planet_id, summary_content, session)
+        #Disabled for now
+        #await comic_ai_manager.generate(summary_content, planet_id)
 
-# Ensure the scheduler shuts down properly on application exit.
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
-    scheduler.shutdown()
+
+
 
 
 @app.get("/events/")

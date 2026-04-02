@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from google.oauth2 import service_account
 from googleapiclient.http import MediaFileUpload
 from magic_hour import Client
@@ -9,22 +11,24 @@ import boto3
 from botocore.exceptions import NoCredentialsError, ClientError
 
 
-async def generate(summary_content):
+async def generate(summary_content, planet_id):
     client = Client(token=os.environ["MAGIC_HOUR_KEY"])
+    path = f"storage/{planet_id}"
+    Path(path).mkdir(parents=True, exist_ok=True)
 
     result = client.v1.ai_image_generator.generate(
-        image_count=4,
+        image_count=1,
         orientation="landscape",
         style={
             "prompt": f"vintage comic with some comic bubbles related to this story:${summary_content}"
         },
         wait_for_completion=True, # wait for the render to complete
         download_outputs=True, # download the outputs to local disk
-        download_directory="outputs", # save the outputs to the "outputs" directory
+        download_directory=path,
     )
 
     print(f"created image with id {result.id}, spent {result.credits_charged} credits. Outputs are saved at {result.downloaded_paths}")
-    await upload_results()
+    #await upload_results()
 
 async def upload_results():
     s3_client = boto3.client('s3')

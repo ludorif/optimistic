@@ -7,6 +7,7 @@ import React, {useEffect, useState} from "react";
 import ExecuteRequest from "../../AxiosManager";
 import axios from "axios";
 import {TypedPlanet} from "../../components/Planet";
+import titleStyle from "../../Helper";
 
 interface ChangePlanetProps {
     OnClickFunction: () => void;
@@ -15,18 +16,23 @@ interface ChangePlanetProps {
 const ChangePlanet: React.FC<ChangePlanetProps> = ({OnClickFunction}) => {
     const [PlanetName, SetPlanetName] = useState("");
     const [PlanetType, SetPlanetType] = useState("");
+    const [summaryContent, SetSummaryContent] = useState("");
+
 
     useEffect(()=> {
             const planetName = localStorage.getItem("planetName");
             if (planetName != null) {
                 SetPlanetName(planetName);
                 SetPlanetType(localStorage.getItem("planetType") as string);
+                const planetId = localStorage.getItem('planetId');
+                ExecuteRequest(axios.get(`summary/?planet_id=${planetId}`), SetSummaryContent)
             }
         }, []
     )
 
     return <>
         <p>Current Planet : {PlanetName}</p>
+        <p>Summary: {summaryContent}</p>
         <TypedPlanet planetType={PlanetType}></TypedPlanet>
         <Button onClick={OnClickFunction} variant="contained">ChangePlanet</Button>
         </>

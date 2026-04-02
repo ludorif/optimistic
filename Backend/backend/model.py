@@ -21,4 +21,3 @@ class HealthCheck(BaseModel):
 class Planet(BaseModel):
     name: str
     type: str
-    first_story: str
