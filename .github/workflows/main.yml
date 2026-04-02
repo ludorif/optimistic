@@ -29,9 +29,13 @@ jobs:
         working-directory: Backend
         run: poetry install
         
+      - name: Mypy install types 
+        working-directory: Backend
+        run: poetry run mypy --install-types
+        
       - name: Mypy
         working-directory: Backend
-        run: poetry run mypy --install-types --incremental --show-error-codes --pretty backend
+        run: poetry run mypy --incremental --show-error-codes --pretty backend
 
       - name: Run tests
         working-directory: Backend
