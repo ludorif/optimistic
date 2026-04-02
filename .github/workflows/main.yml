@@ -30,8 +30,8 @@ jobs:
         run: poetry install
         
       - name: Mypy
-        run: |
-        poetry run mypy --incremental --show-error-codes --pretty src
+        working-directory: Backend
+        run: poetry run mypy --incremental --show-error-codes --pretty backend
 
       - name: Run tests
         working-directory: Backend
