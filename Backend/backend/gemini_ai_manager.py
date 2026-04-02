@@ -30,7 +30,8 @@ def generate_new_event(story : str | None = ""):
     )
 
     #clean response
-    response_formatted =  response.text.replace("```json", "")
+    response_formatted = str(response.text)
+    response_formatted =  response_formatted.replace("```json", "")
     response_formatted = response_formatted.replace("```", "")
 
     #print(response_formatted)
@@ -51,7 +52,8 @@ def generate_summary(all_events):
                  f"It should be overly optimistic and always climate positive."
     )
 
-    response_formatted = response.text.replace("```json", "")
+    response_formatted = str(response.text)
+    response_formatted = response_formatted.replace("```json", "")
     response_formatted = response_formatted.replace("```", "")
 
     return response_formatted

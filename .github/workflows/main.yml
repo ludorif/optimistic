@@ -28,6 +28,10 @@ jobs:
       - name: Install dependencies
         working-directory: Backend
         run: poetry install
+        
+      - name: Mypy
+        run: |
+        poetry run mypy --incremental --show-error-codes --pretty src
 
       - name: Run tests
         working-directory: Backend

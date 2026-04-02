@@ -10,9 +10,9 @@ from . import model
 from .db import planet, event, vote, sql_model
 
 SessionLocal : sessionmaker[Session]
-db_path : str  = os.environ.get("SQLITE_DB_PATH")
+db_path   = os.environ.get("SQLITE_DB_PATH")
 engine = create_engine(
-    db_path,
+    str(db_path),
     connect_args={"check_same_thread": False},
     pool_size=10,
     max_overflow=20,
@@ -79,10 +79,14 @@ def get_health(session: Session ):
     try:
         # 1. Integrity check
         result = session.execute(text("PRAGMA integrity_check;")).fetchone()
-        if result[0] == "ok":
-            print("✅ Integrity check passed.")
+
+        if result is None:
+            print("Integrity check failed: no result")
         else:
-            print(f"❌ Integrity check failed: {result[0]}")
+            if result[0] == "ok":
+                print("✅ Integrity check passed.")
+            else:
+                print(f"❌ Integrity check failed: {result[0]}")
 
         # 2. Foreign key check
         fk_issues = session.execute(text("PRAGMA foreign_key_check;")).fetchall()

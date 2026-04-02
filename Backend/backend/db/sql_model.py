@@ -1,9 +1,10 @@
-﻿from datetime import datetime, timezone
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, ForeignKey, text, DateTime, Boolean
-from sqlalchemy.orm import relationship, Session, declarative_base
+from sqlalchemy.orm import relationship, Session, DeclarativeBase
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 class Event(Base):
     __tablename__ = "events"

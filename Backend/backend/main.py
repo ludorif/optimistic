@@ -1,4 +1,4 @@
-﻿#  Copyright (c) 2025 Ludovic Riffiod
+#  Copyright (c) 2025 Ludovic Riffiod
 from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -71,7 +71,7 @@ def create_summary(planet_id : int, session: Session):
     return gemini_ai_manager.generate_summary(all_events_str)
 
 #@app.get("/define_winner/")
-async def define_winner():
+async def define_winner() -> None:
     print("define_winner")
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
@@ -83,7 +83,7 @@ async def define_winner():
 def get_summary(planet_id : int, session: Session = Depends(get_db)):
     return sqlite_db_manager.get_summary(planet_id, session)
 
-async def generate_summary_and_comic():
+async def generate_summary_and_comic() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     planets = get_planets( session)
@@ -135,12 +135,12 @@ def post_planets(new_planet: model.Planet, session: Session = Depends(get_db)):
     return {"planet_id": planet_id}
 
 
-async def create_fake_event():
+async def create_fake_event() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     await sqlite_db_manager.create_fake_event(session)
 
-def fake_vote():
+def fake_vote() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     sqlite_db_manager.fake_vote(session)

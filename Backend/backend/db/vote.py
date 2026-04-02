@@ -22,17 +22,17 @@ def increase_vote(existing_event: model.ExistingEvent, session: Session ):
         {"event_id": existing_event.event_id, "client_id": existing_event.uuid, "planet_id": existing_event.planet_id},
     )
 
-    exists = result.fetchall()
+    event_exists = result.fetchall()
 
     client_uuid = existing_event.uuid
 
-    if exists:
+    if event_exists:
         return status.HTTP_403_FORBIDDEN, "You can't vote for your own event"
 
-    exists = session.query(Vote.id).filter(
+    vote_exists = session.query(Vote.id).filter(
         (Vote.user_id == client_uuid) & Vote.event.has(planet_id=existing_event.planet_id)).first() is not None
 
-    if exists:
+    if vote_exists:
         return status.HTTP_403_FORBIDDEN, "You already voted for an event today"
 
     try:
