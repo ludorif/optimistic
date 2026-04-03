@@ -76,6 +76,7 @@ async def define_winner() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     sqlite_db_manager.define_all_winners(session)
+    session.close()
 
 
 
@@ -93,6 +94,7 @@ async def generate_summary_and_comic() -> None:
         sqlite_db_manager.update_summary(planet_id, summary_content, session)
         #Disabled for now
         #await comic_ai_manager.generate(summary_content, planet_id)
+    session.close()
 
 
 
@@ -139,11 +141,13 @@ async def create_fake_event() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     await sqlite_db_manager.create_fake_event(session)
+    session.close()
 
 def fake_vote() -> None:
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     sqlite_db_manager.fake_vote(session)
+    session.close()
 
 
 @app.get(

@@ -145,7 +145,10 @@ def define_winner(today_date_str, planet_id, session: Session):
 def check_current_events( event_date, client_uuid, planet_id,session: Session ):
     dic_results = get_events( planet_id, event_date, session)
     number_of_events = len( dic_results)
-    user_already_participated = session.query(Event.id).filter((Event.client_id == client_uuid) & (Event.created_at == event_date)).first() is not None
+    iso_date = datetime.fromisoformat(
+        event_date.replace("Z", "+00:00")
+    ).date()
+    user_already_participated = session.query(Event.id).filter((Event.client_id == client_uuid) & (Event.created_at == iso_date)).first() is not None
     return number_of_events, user_already_participated
 
 async def create_fake_event(session: Session):
