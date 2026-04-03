@@ -3,7 +3,7 @@
 import uuid
 
 from fastapi import Depends
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, text
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, text, func
 from sqlalchemy.orm import relationship, Session
 from starlette import status
 
@@ -142,13 +142,16 @@ def define_winner(today_date_str, planet_id, session: Session):
 
     return True
 
-def check_current_events( event_date, client_uuid, planet_id,session: Session ):
+def check_current_events( event_date : str, client_uuid, planet_id,session: Session ):
     dic_results = get_events( planet_id, event_date, session)
     number_of_events = len( dic_results)
-    iso_date = datetime.fromisoformat(
-        event_date.replace("Z", "+00:00")
-    ).date()
-    user_already_participated = session.query(Event.id).filter((Event.client_id == client_uuid) & (Event.created_at == iso_date)).first() is not None
+    user_already_participated: bool = False
+
+    for event in dic_results:
+        if event["client_id"] == client_uuid:
+            user_already_participated = True
+            break
+
     return number_of_events, user_already_participated
 
 async def create_fake_event(session: Session):
