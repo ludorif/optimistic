@@ -25,12 +25,15 @@ jobs:
           cache-dependency-path: Frontend/package-lock.json
 
       - name: Type check
+        working-directory: Frontend
         run: npm run typecheck   # tsc --noEmit
 
       - name: Lint
+        working-directory: Frontend
         run: npm run lint        # eslint .
       
       - name: Run tests
+        working-directory: Frontend
         run: npm run test        # jest or vitest
 
       - name: Log in to GitHub Container Registry
