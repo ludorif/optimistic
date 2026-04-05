@@ -14,3 +14,7 @@ const titleStyle : React.CSSProperties = {
 };
 
 export default titleStyle
+
+export function isGreaterThan<T>(a : T, b : T) : boolean {
+    return a > b;
+}
