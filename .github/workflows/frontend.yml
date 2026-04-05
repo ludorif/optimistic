@@ -24,6 +24,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: Frontend/package-lock.json
 
+      - name: Install dependencies
+        working-directory: Frontend
+        run: npm ci   # <-- installs all dependencies including devDependencies
+        
       - name: Type check
         working-directory: Frontend
         run: npm run typecheck   # tsc --noEmit
