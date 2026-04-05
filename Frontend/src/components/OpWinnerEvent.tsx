@@ -1,7 +1,6 @@
 ﻿//Copyright (c) 2025 Ludovic Riffiod
 import React from "react";
 import OpEvent from "./OpEvent.jsx";
-import {ArcherElement} from 'react-archer'
 import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
 

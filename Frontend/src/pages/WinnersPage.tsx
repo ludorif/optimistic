@@ -5,7 +5,6 @@ import styles from "../css/mystyle.module.css";
 import ExecuteRequest from "../AxiosManager.jsx";
 import Grid from "@mui/material/Grid";
 //Copyright (c) 2025 Ludovic Riffiod
-import {ArcherContainer} from 'react-archer'
 import titleStyle from "../Helper.jsx";
 import {useNavigate} from "react-router-dom";
 
