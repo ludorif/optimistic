@@ -22,6 +22,7 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+          cache-dependency-path: Frontend/package-lock.json
 
       - name: Type check
         run: npm run typecheck   # tsc --noEmit
