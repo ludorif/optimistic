@@ -3,7 +3,6 @@
     "types": ["vitest"],
     "jsx": "react",
     "module": "ESNext",
-    "moduleResolution": "Node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "strict": true,

@@ -1,4 +1,8 @@
-﻿type OEvent = {
+﻿export {};
+
+declare global {
+
+    type OEvent = {
     id : number
     title : string
     content : string
@@ -9,4 +13,5 @@
 
 type ODate ={
     created_at : string
+}
 }

@@ -6,20 +6,24 @@ import {
     Controls,
     type Edge,
     type Node,
+    NodeTypes
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import WinnerFlowNode, { type WinnerFlowNodeData } from "../components/WinnerFlowNode";
+import WinnerFlowNode, {type WinnerFlowNodeData, WinnerNode} from "../components/WinnerFlowNode";
 import ExecuteRequest from "../AxiosManager.jsx";
 //Copyright (c) 2025 Ludovic Riffiod
 import titleStyle from "../Helper.jsx";
 import { useNavigate } from "react-router-dom";
+
+const winnerNodeTypes: NodeTypes = {
+    winnerEvent: WinnerFlowNode,
+};
 
 const NODE_W = 750;
 const NODE_H = 750;
 const DAY_GAP = 500;
 const COLS = 3;
 
-const winnerNodeTypes = { winnerEvent: WinnerFlowNode };
 
 function nodeIdForEvent(event: OEvent & { _id?: string }) {
     return event._id != null ? `e-${event._id}` : `e-${event.id}`;
@@ -28,9 +32,9 @@ function nodeIdForEvent(event: OEvent & { _id?: string }) {
 function buildWinnerFlow(
     eventsArray: OEvent[],
     winners: OEvent[],
-): { nodes: Node<WinnerFlowNodeData>[]; edges: Edge[] }
+): { nodes: WinnerNode[]; edges: Edge[] }
 {
-    const nodes: Node<WinnerFlowNodeData>[] = [];
+    const nodes: WinnerNode[] = [];
     const winnerIdsOrdered: string[] = [];
 
     if (eventsArray.length === 0) {
@@ -129,6 +133,7 @@ function WinnersPage() {
         [events, winners],
     );
 
+    // @ts-ignore
     return (
         <div style={{ width: "100%", height: "calc(100vh - 120px)", minHeight: 480 }}>
             <h1 style={titleStyle}>Events that won:</h1>

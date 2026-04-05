@@ -1,14 +1,18 @@
 //Copyright (c) 2025 Ludovic Riffiod
-import { Handle, Position, type NodeProps } from "@xyflow/react";
+import {Handle, Position, type NodeProps, type Node, XYPosition} from "@xyflow/react";
 import OpWinnerEvent from "./OpWinnerEvent.jsx";
 import React from "react";
 
 export type WinnerFlowNodeData = {
     event: OEvent;
     isWinner: boolean;
-};
+} & Record<string, any>;
 
-export default function WinnerFlowNode({ data }: NodeProps<WinnerFlowNodeData>) {
+export type WinnerNode = Node<WinnerFlowNodeData>;
+
+export default function WinnerFlowNode(props: NodeProps<WinnerNode>) {
+    const { data } = props;
+
     return (
         <div style={{ width: 750 }}>
             {data.isWinner ? (
