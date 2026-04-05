@@ -1,99 +1,157 @@
-﻿import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import OpWinnerEvent from "../components/OpWinnerEvent.jsx";
-import styles from "../css/mystyle.module.css";
+import {
+    ReactFlow,
+    Background,
+    Controls,
+    type Edge,
+    type Node,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import WinnerFlowNode, { type WinnerFlowNodeData } from "../components/WinnerFlowNode";
 import ExecuteRequest from "../AxiosManager.jsx";
-import Grid from "@mui/material/Grid";
 //Copyright (c) 2025 Ludovic Riffiod
 import titleStyle from "../Helper.jsx";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+const NODE_W = 750;
+const NODE_H = 750;
+const DAY_GAP = 500;
+const COLS = 3;
 
+const winnerNodeTypes = { winnerEvent: WinnerFlowNode };
 
+function nodeIdForEvent(event: OEvent & { _id?: string }) {
+    return event._id != null ? `e-${event._id}` : `e-${event.id}`;
+}
 
-function WinnersPage () {
-    const [allEvents, setAllEvents] = useState<React.JSX.Element[]>([])
-    const [winners, setWinners] = useState<OEvent[]>([])
-    const itemsRef = useRef(null);
-    let count = 0;
-    const navigate = useNavigate()
-    const planetId = localStorage.getItem('planetId');
+function buildWinnerFlow(
+    eventsArray: OEvent[],
+    winners: OEvent[],
+): { nodes: Node<WinnerFlowNodeData>[]; edges: Edge[] }
+{
+    const nodes: Node<WinnerFlowNodeData>[] = [];
+    const winnerIdsOrdered: string[] = [];
 
-    if(planetId == null)
-    {
-        navigate('/Planet');
+    if (eventsArray.length === 0) {
+        return { nodes, edges: [] };
     }
 
+    const winnerSet = (e: OEvent) => winners.some((w) => w.id === e.id);
+
+    let date = Date.parse(eventsArray[0].created_at);
+    let globalY = 0;
+    let currentLine: OEvent[] = [];
+
+    const flushLine = () => {
+        if (currentLine.length === 0) return;
+        currentLine.forEach((event, idx) => {
+            const col = idx % COLS;
+            const rowInLine = Math.floor(idx / COLS);
+            const isWinner = winnerSet(event);
+            const id = nodeIdForEvent(event);
+            nodes.push({
+                id,
+                type: "winnerEvent",
+                position: { x: col * NODE_W, y: globalY + rowInLine * NODE_H },
+                data: { event, isWinner },
+                draggable: false,
+            });
+            if (isWinner) {
+                winnerIdsOrdered.push(id);
+            }
+        });
+        const rows = Math.ceil(currentLine.length / COLS);
+        globalY += rows * NODE_H + DAY_GAP;
+        currentLine = [];
+    };
+
+    for (const event of eventsArray) {
+        const parsedDate = Date.parse(event.created_at);
+        if (parsedDate > date) {
+            flushLine();
+            date = parsedDate;
+        }
+        currentLine.push(event);
+    }
+    flushLine();
+
+    const edges: Edge[] = [];
+    for (let i = 0; i < winnerIdsOrdered.length - 1; i++) {
+        edges.push({
+            id: `winner-chain-${winnerIdsOrdered[i]}-${winnerIdsOrdered[i + 1]}`,
+            source: winnerIdsOrdered[i],
+            sourceHandle: "bottom",
+            target: winnerIdsOrdered[i + 1],
+            targetHandle: "top",
+            style: { stroke: "#888", strokeDasharray: "5 5" },
+            type: "smoothstep",
+        });
+    }
+
+    return { nodes, edges };
+}
+
+function WinnersPage() {
+    const [events, setEvents] = useState<OEvent[]>([]);
+    const [winners, setWinners] = useState<OEvent[]>([]);
+    const navigate = useNavigate();
+    const planetId = localStorage.getItem("planetId");
+
+    if (planetId == null) {
+        navigate("/Planet");
+    }
 
     function UpdateWinners(winnersArray: OEvent[]) {
         setWinners(winnersArray);
     }
 
-    function GenerateNewOpEvent(event) :  React.JSX.Element {
-        const isWinner = winners.find((item) => item.id === event.id) != null;
-
-
-        if (isWinner) {
-            ++count;
-        }
-
-        return <Grid  size={4}   >
-        <OpWinnerEvent  key={event._id} event={event}  count={count} isWinner={isWinner}></OpWinnerEvent>
-        </Grid>;
-
+    function UpdateEvents(eventsArray: OEvent[]) {
+        setEvents(eventsArray);
     }
-
-    function GenerateNewLine(lineContent : React.JSX.Element[], lineIndex : number) : React.JSX.Element {
-    return <Grid height={750} container justifyContent="center" alignItems="center" spacing={1} ref={itemsRef} size={10} key={lineIndex} className={styles.customUl}>{lineContent}</Grid>
-    }
-
-    function UpdateAllEvents(eventsArray: OEvent[]) {
-        let localAllEvents: React.JSX.Element[]  = []
-        let lineContent : React.JSX.Element[] = [];
-        let date = Date.parse(eventsArray[0].created_at);
-        let lineIndex = 0;
-
-        for (let event of eventsArray) {
-            const parsedDate = Date.parse(event.created_at)
-            console.log(parsedDate);
-            if (parsedDate > date)
-            {
-                localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
-                date = parsedDate;
-                lineContent = []
-                ++ lineIndex;
-            }
-
-            lineContent.push(GenerateNewOpEvent(event));
-        }
-
-        localAllEvents.push(GenerateNewLine(lineContent, lineIndex));
-        setAllEvents(localAllEvents)
-    }
-
-
-
-    useEffect(()=>{
-        ExecuteRequest(axios.get("winners/"), UpdateWinners);
-    },[])
 
     useEffect(() => {
-        if(winners.length === 0){
+        ExecuteRequest(axios.get("winners/"), UpdateWinners);
+    }, []);
+
+    useEffect(() => {
+        if (winners.length === 0) {
             return;
         }
-        ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}`), UpdateAllEvents);
-        }, [winners])
+        ExecuteRequest(
+            axios.get(`events/?planet_id=${localStorage.getItem("planetId")}`),
+            UpdateEvents,
+        );
+    }, [winners]);
 
+    const { nodes, edges } = useMemo(
+        () => buildWinnerFlow(events, winners),
+        [events, winners],
+    );
 
     return (
-        <div >
+        <div style={{ width: "100%", height: "calc(100vh - 120px)", minHeight: 480 }}>
             <h1 style={titleStyle}>Events that won:</h1>
+            <div style={{ width: "100%", height: "calc(100% - 48px)" }}>
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    nodeTypes={winnerNodeTypes}
+                    fitView = {true}
+                    fitViewOptions={{ padding: 0.15 }}
+                    nodesDraggable={false}
+                    nodesConnectable={false}
+                    elementsSelectable={false}
+                    panOnDrag={false}
+                    panOnScroll={true}
+                    zoomOnScroll={false}
+                    zoomOnPinch={false}
+                    zoomOnDoubleClick={false}
+                >
 
-            <ArcherContainer strokeColor="gray">
-            {allEvents}
-            </ArcherContainer>
+                </ReactFlow>
+            </div>
         </div>
-
     );
 }
 

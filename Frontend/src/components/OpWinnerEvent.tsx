@@ -1,4 +1,4 @@
-﻿//Copyright (c) 2025 Ludovic Riffiod
+//Copyright (c) 2025 Ludovic Riffiod
 import React from "react";
 import OpEvent from "./OpEvent.jsx";
 import ExecuteRequest from "../AxiosManager.jsx";
@@ -23,30 +23,11 @@ function RequestVoiceOver(content: any){
     ExecuteRequest(axios.get(`voiceOver/?content="${content}"`), PlayAudio);
 }
 
-export default function  OpWinnerEvent ({event,  count, isWinner}) {
-    let element = <div style={{ border: '1px solid gray'}}>
-        <OpEvent  event={event}>
-        </OpEvent>
-        <button onClick={()=>{RequestVoiceOver(event.content)}} > Voice over </button>
-    </div>
-
-    if (isWinner) {
-        const nextWinner = (count + 1);
-        return (
-            <ArcherElement   id={count.toString()}
-                           relations={[
-                               {
-                                   targetId: nextWinner,
-                                   targetAnchor: 'top',
-                                   sourceAnchor: 'bottom',
-                                   style: { strokeDasharray: '5,5', lineStyle: 'curve' }
-                               },
-                           ]}>
-                {element}
-
-            </ArcherElement>
-        );
-    }
-
-    return element;
+export default function OpWinnerEvent({ event, isWinner }) {
+    return (
+        <div style={{ border: isWinner ? "2px solid #666" : "1px solid gray" }}>
+            <OpEvent event={event} />
+            <button onClick={() => RequestVoiceOver(event.content)}> Voice over </button>
+        </div>
+    );
 }
