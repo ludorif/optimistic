@@ -67,6 +67,6 @@ jobs:
           context: .
           file: ./Backend/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ghcr.io/${{ github.repository }}-backend:latest
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64
