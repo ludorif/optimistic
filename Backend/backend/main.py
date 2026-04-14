@@ -54,6 +54,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://optimistic-1.onrender.com",
+        "https://optimistic-frontend-latest.onrender.com"
         "http://localhost:5173"
     ],
     allow_credentials=True,
