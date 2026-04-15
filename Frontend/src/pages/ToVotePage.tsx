@@ -17,9 +17,10 @@ const ToVotePage = () => {
 
     useEffect(() => {
         const planetId = localStorage.getItem('planetId');
-        if(planetId == null)
+        if (!planetId || planetId === "undefined")
         {
             navigate('/Planet');
+            return
         }
 
         const uuid = localStorage.getItem('UUID');

@@ -17,15 +17,15 @@ const History = () => {
 
     useEffect(() => {
         const planetId = localStorage.getItem('planetId');
-        if(planetId == null)
+        if (!planetId || planetId === "undefined")
         {
             navigate('/Planet');
+            return
         }
 
         ExecuteRequest(axios.get(`events/dates/?planet_id=${planetId}`), UpdateDates);
 
         const savedDate = localStorage.getItem('selectedDate');
-        console.log(savedDate);
         if (savedDate) {
             setSelectedDate(savedDate);
         }
@@ -35,9 +35,6 @@ const History = () => {
 
     function UpdateDates(datesArray: ODate[]) {
 
-        datesArray.forEach(date => {
-            console.log(date);
-        });
 
        const datesMap = datesArray.map((item, index) => <option key={index} value={item.created_at}>{new Date(item.created_at).toDateString()}</option>);
 

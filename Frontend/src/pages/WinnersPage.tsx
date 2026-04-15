@@ -100,11 +100,7 @@ function WinnersPage() {
     const [events, setEvents] = useState<OEvent[]>([]);
     const [winners, setWinners] = useState<OEvent[]>([]);
     const navigate = useNavigate();
-    const planetId = localStorage.getItem("planetId");
 
-    if (planetId == null) {
-        navigate("/Planet");
-    }
 
     function UpdateWinners(winnersArray: OEvent[]) {
         setWinners(winnersArray);
@@ -115,6 +111,12 @@ function WinnersPage() {
     }
 
     useEffect(() => {
+        const planetId = localStorage.getItem('planetId');
+        if (!planetId || planetId === "undefined")
+        {
+            navigate('/Planet');
+            return
+        }
         ExecuteRequest(axios.get("winners/"), UpdateWinners);
     }, []);
 

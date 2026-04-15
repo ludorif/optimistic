@@ -56,7 +56,7 @@ export function useConfirmPlanet() {
         localStorage.setItem("planetId", planetId);
         localStorage.setItem("selectedDate", "");
 
-        navigate('/history');
+        navigate(0);//reload page
     };
 }
 

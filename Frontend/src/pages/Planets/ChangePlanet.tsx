@@ -25,7 +25,7 @@ const ChangePlanet: React.FC<ChangePlanetProps> = ({OnClickFunction}) => {
                 SetPlanetName(planetName);
                 SetPlanetType(localStorage.getItem("planetType") as string);
                 const planetId = localStorage.getItem('planetId');
-                ExecuteRequest(axios.get(`summary/?planet_id=${planetId}`), SetSummaryContent)
+                //ExecuteRequest(axios.get(`summary/?planet_id=${planetId}`), SetSummaryContent)
             }
         }, []
     )

@@ -33,7 +33,7 @@ const PlanetPage = () => {
 
     function UpdatePlanets(planetsArray: any[]) {
         const planetsMap = planetsArray.map((item) =>
-            <ClickablePlanet planetName={item.name} planetType={item.type} planetId={item.id}></ClickablePlanet>);
+            <ClickablePlanet key={item.name} planetName={item.name} planetType={item.type} planetId={item.id}></ClickablePlanet>);
         setPlanets(planetsMap);
     }
 
