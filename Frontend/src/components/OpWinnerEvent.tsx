@@ -4,22 +4,22 @@ import OpEvent from "./OpEvent.jsx";
 import ExecuteRequest from "../AxiosManager.jsx";
 import axios from "axios";
 
-var globalVar = "";
-
+let currentAudio: HTMLAudioElement | null = null;
 
 function PlayAudio(audioUrl: { path: string | undefined; }){
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.src = "";
+        currentAudio = null;
+    }
     const audio = new Audio(audioUrl.path);
-    audio.onended = () => {globalVar = ""};
-    audio.play().catch(err => console.log("Playback error:", err));
+    currentAudio = audio;
+    audio.onended = () => { currentAudio = null; };
+    audio.play().catch(err => console.error("Playback error:", err));
 }
 
-function RequestVoiceOver(content: any){
-    console.log(globalVar);
-    if(globalVar == "true"){
-        return;
-    }
-    globalVar = "true";
-
+function RequestVoiceOver(content: string){
+    if (currentAudio && !currentAudio.ended) return;
     ExecuteRequest(axios.get(`voiceOver/?content="${content}"`), PlayAudio);
 }
 

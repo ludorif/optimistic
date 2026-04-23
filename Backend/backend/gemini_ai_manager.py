@@ -37,9 +37,13 @@ def generate_new_event(story : str | None = ""):
     #print(response_formatted)
 
     response_dict = json.loads(response_formatted)
-    response_dict["photoId"] = pexels_manager.get_photo_id(response_dict["title"])
+
     response_dict["date"] =  helper.get_utc_day()
     response_dict["votes"] = []
+
+    photo_id = pexels_manager.get_photo_id(response_dict["title"])
+    if photo_id is not None:
+        response_dict["photoId"] = photo_id
 
     return  response_dict
 

@@ -48,7 +48,7 @@ def increase_vote(existing_event: model.ExistingEvent, session: Session ):
         return status.HTTP_200_OK, "Vote added"
     except Exception as e:
         print(e)
-        return status.HTTP_403_FORBIDDEN,e
+        return status.HTTP_403_FORBIDDEN,"Forbidden"
 
 def fake_vote(session: Session):
     today_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -58,7 +58,10 @@ def fake_vote(session: Session):
 
     for planet in planets:
         today_events = get_events( planet["id"], today_date_str, session)
-        random_index =  random.randint(0, len(today_events)-1)
+        today_events_count = len(today_events)
+        if today_events_count == 0:
+            continue
+        random_index =  random.randint(0, today_events_count-1)
         random_event = today_events[random_index]
         existing_event: model.ExistingEvent = model.ExistingEvent(event_id=random_event["id"], uuid = client_uuid, planet_id=planet["id"])
         result = increase_vote(existing_event, session)
