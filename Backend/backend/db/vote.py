@@ -1,6 +1,9 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+import logging
 import random
+
+logger = logging.getLogger(__name__)
 from datetime import datetime
 
 from sqlalchemy import text
@@ -47,7 +50,7 @@ def increase_vote(existing_event: model.ExistingEvent, session: Session ):
         session.commit()
         return status.HTTP_200_OK, "Vote added"
     except Exception as e:
-        print(e)
+        logger.exception("Failed to add vote")
         return status.HTTP_403_FORBIDDEN,"Forbidden"
 
 def fake_vote(session: Session):
@@ -65,5 +68,5 @@ def fake_vote(session: Session):
         random_event = today_events[random_index]
         existing_event: model.ExistingEvent = model.ExistingEvent(event_id=random_event["id"], uuid = client_uuid, planet_id=planet["id"])
         result = increase_vote(existing_event, session)
-        print("fake vote for event: "+ random_event["title"]+" in planet : "+str(planet["id"])+" result : "+ str(result))
+        logger.info("fake vote for event: %s in planet: %s result: %s", random_event["title"], planet["id"], result)
 

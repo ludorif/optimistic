@@ -1,6 +1,9 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 
 from fastapi import Depends
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, text, func
@@ -21,7 +24,7 @@ from ..model import NewEvent, ExistingEvent
 async def add_new_event(new_event: model.NewEvent, response: Response, session: Session):
     number_of_events, user_already_participated = check_current_events( new_event.event_date, new_event.uuid, new_event.planet_id, session)
 
-    print("number_of_events ", number_of_events)
+    logger.info("number_of_events %s", number_of_events)
 
     if user_already_participated:
         response.status_code = status.HTTP_403_FORBIDDEN
@@ -61,7 +64,7 @@ async def add_event_to_world( response_dict, client_uuid, planet_id, session: Se
         session.add(event)
         session.commit()
     except Exception as e:
-        print(e)
+        logger.exception("Failed to add event to world")
 
 def get_dates(planet_id, session: Session ):
     query = """
@@ -119,7 +122,7 @@ def define_winner(today_date_str, planet_id, session: Session):
     today_events = get_events(planet_id, today_date_str, session)
 
     if len(today_events) == 0:
-        print("no events")
+        logger.info("no events for planet %s", planet_id)
         return False
 
     winner = today_events[0]
@@ -128,7 +131,7 @@ def define_winner(today_date_str, planet_id, session: Session):
         if today_event["vote_count"] > winner["vote_count"]:
             winner = today_event
 
-    print("winner is", winner["title"], " for planet ", planet_id)
+    logger.info("winner is %s for planet %s", winner["title"], planet_id)
 
     session.execute(
         text("""
@@ -163,7 +166,7 @@ async def create_fake_event(session: Session):
         fake_new_event: model.NewEvent = NewEvent(story="", event_date= today_date_str, uuid=str(uuid.uuid4()), planet_id=planet["id"])
         response: Response = Response()
         await add_new_event( fake_new_event, response, session)
-        print("created fake event for planet: "+ planet["name"]+" status code : "+ str(response.status_code))
+        logger.info("created fake event for planet: %s status code: %s", planet["name"], response.status_code)
 
 
 

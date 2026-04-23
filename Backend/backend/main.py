@@ -1,7 +1,10 @@
 #  Copyright (c) 2025 Ludovic Riffiod
+import logging
 from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+logger = logging.getLogger(__name__)
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, UTC, timedelta
@@ -21,7 +24,7 @@ from .sqlite_db_manager import get_db
 
 @asynccontextmanager
 async def lifespan(fast_api_app: FastAPI):
-    print("starting")
+    logger.info("starting")
 
     for hour_int in range(8, 14, 2):
         trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
@@ -43,7 +46,7 @@ async def lifespan(fast_api_app: FastAPI):
 
 
     scheduler.start()
-    print("started")
+    logger.info("started")
     yield
 
     # Ensure the scheduler shuts down properly on application exit.
@@ -73,7 +76,7 @@ def create_summary(planet_id : int, session: Session):
 
 #@app.get("/define_winner/")
 async def define_winner() -> None:
-    print("define_winner")
+    logger.info("define_winner")
     from backend.sqlite_db_manager import SessionLocal
     session: Session = SessionLocal()
     sqlite_db_manager.define_all_winners(session)

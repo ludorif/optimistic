@@ -1,6 +1,9 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 #
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 from fastapi import Depends
 from sqlalchemy import text, create_engine
@@ -81,21 +84,21 @@ def get_health(session: Session ):
         result = session.execute(text("PRAGMA integrity_check;")).fetchone()
 
         if result is None:
-            print("Integrity check failed: no result")
+            logger.error("Integrity check failed: no result")
         else:
             if result[0] == "ok":
-                print("✅ Integrity check passed.")
+                logger.info("Integrity check passed.")
             else:
-                print(f"❌ Integrity check failed: {result[0]}")
+                logger.error("Integrity check failed: %s", result[0])
 
         # 2. Foreign key check
         fk_issues = session.execute(text("PRAGMA foreign_key_check;")).fetchall()
         if not fk_issues:
-            print("✅ Foreign key check passed.")
+            logger.info("Foreign key check passed.")
         else:
-            print(f"❌ Foreign key issues found: {fk_issues}")
+            logger.error("Foreign key issues found: %s", fk_issues)
     except Exception as e:
-        print(f"❌ Database error: {e}")
+        logger.exception("Database error")
 
 
 def get_all_events_story(planet_id, session: Session):
