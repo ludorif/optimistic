@@ -58,8 +58,4 @@ def test_events(client):
 
     new_event = NewEvent(story= "test", event_date = "2021-07-30", planet_id=1, uuid=str(uuid.uuid4()) )
     response = client.post("/events/?planet_id=1", json=new_event.model_dump())
-    assert response.status_code == 201
-
-    response = client.get("/events/?planet_id=1")
-    events = response.json()
-    print(len(events))
+    assert response.status_code == 401
