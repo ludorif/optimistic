@@ -1,57 +1,35 @@
 #  Copyright (c) 2025 Ludovic Riffiod
 import logging
-from zoneinfo import ZoneInfo
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
-logger = logging.getLogger(__name__)
-import uuid
+import os
 from contextlib import asynccontextmanager
-from datetime import datetime, UTC, timedelta
 
+from fastapi import FastAPI, Response, status, Depends, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm.session import Session
 
-#from . import mongo_db
 from . import model
 from . import gemini_ai_manager
 from . import voice_over_manager
-from fastapi import FastAPI, Response, status, Request, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from apscheduler.triggers.cron import CronTrigger
-from . import comic_ai_manager
 from . import sqlite_db_manager
 from .sqlite_db_manager import get_db
 from .auth import create_session_token, get_current_uuid
 
+logger = logging.getLogger(__name__)
+
+_SCHEDULER_SECRET = os.environ.get("SCHEDULER_SECRET", "")
+
+
+def _verify_scheduler(x_scheduler_secret: str = Header(...)):
+    if not _SCHEDULER_SECRET or x_scheduler_secret != _SCHEDULER_SECRET:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+
 @asynccontextmanager
 async def lifespan(fast_api_app: FastAPI):
     logger.info("starting")
-
-    for hour_int in range(8, 14, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
-        scheduler.add_job(create_fake_event, trigger)
-
-    for hour_int in range(14, 22, 2):
-        trigger = CronTrigger(hour=hour_int, minute=0, timezone=TIMEZONE)
-        scheduler.add_job(fake_vote, trigger)
-
-
-    trigger = CronTrigger(hour=23, minute=59)
-    scheduler.add_job(define_winner, trigger, timezone=TIMEZONE)
-
-    trigger = CronTrigger(day_of_week='sun', hour=1)
-    scheduler.add_job(generate_summary_and_comic, trigger, timezone=TIMEZONE)
-
-    #to test
-    #scheduler.add_job(define_winner, 'date', run_date=datetime.now() + timedelta(seconds=1))
-
-
-    scheduler.start()
-    logger.info("started")
     yield
+    logger.info("stopped")
 
-    # Ensure the scheduler shuts down properly on application exit.
-    scheduler.shutdown()
 
 app = FastAPI(redirect_slashes=False, lifespan=lifespan)
 app.add_middleware(
@@ -65,57 +43,61 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-TIMEZONE = ZoneInfo("UTC")
-scheduler = AsyncIOScheduler(timezone=TIMEZONE)
 
-def create_summary(planet_id : int, session: Session):
+
+def create_summary(planet_id: int, session: Session):
     all_events = sqlite_db_manager.get_all_events_story(planet_id, session)
     all_events_str = ""
     for event in all_events:
-        all_events_str = all_events_str + "\""+ event['content'] + "\","
+        all_events_str = all_events_str + "\"" + event['content'] + "\","
     return gemini_ai_manager.generate_summary(all_events_str)
 
-#@app.get("/define_winner/")
-async def define_winner() -> None:
-    logger.info("define_winner")
-    from backend.sqlite_db_manager import SessionLocal
-    session: Session = SessionLocal()
+
+# --- Scheduler endpoints (called by Cloud Scheduler) ---
+
+@app.post("/scheduler/fake-event/")
+async def trigger_fake_event(session: Session = Depends(get_db), _=Depends(_verify_scheduler)):
+    await sqlite_db_manager.create_fake_event(session)
+    return {"message": "fake event created"}
+
+@app.post("/scheduler/fake-vote/")
+def trigger_fake_vote(session: Session = Depends(get_db), _=Depends(_verify_scheduler)):
+    sqlite_db_manager.fake_vote(session)
+    return {"message": "fake vote done"}
+
+@app.post("/scheduler/define-winner/")
+def trigger_define_winner(session: Session = Depends(get_db), _=Depends(_verify_scheduler)):
+    logger.info("define_winner triggered")
     sqlite_db_manager.define_all_winners(session)
-    session.close()
+    return {"message": "winner defined"}
 
-
-
-@app.get("/summary/")
-def get_summary(planet_id : int, session: Session = Depends(get_db)):
-    return sqlite_db_manager.get_summary(planet_id, session)
-
-async def generate_summary_and_comic() -> None:
-    from backend.sqlite_db_manager import SessionLocal
-    session: Session = SessionLocal()
-    planets = get_planets( session)
+@app.post("/scheduler/generate-summary/")
+async def trigger_generate_summary(session: Session = Depends(get_db), _=Depends(_verify_scheduler)):
+    planets = sqlite_db_manager.get_planets(session)
     for planet in planets:
         planet_id = planet['id']
         summary_content = create_summary(planet_id, session)
         sqlite_db_manager.update_summary(planet_id, summary_content, session)
-        #Disabled for now
-        #await comic_ai_manager.generate(summary_content, planet_id)
-    session.close()
+    return {"message": "summaries updated"}
 
 
-
-
+# --- Public endpoints ---
 
 @app.get("/session/")
 def get_session():
     _, token = create_session_token()
     return {"token": token}
 
+@app.get("/summary/")
+def get_summary(planet_id: int, session: Session = Depends(get_db)):
+    return sqlite_db_manager.get_summary(planet_id, session)
+
 @app.get("/events/")
-def get_events(planet_id : int, date : str | None = "", session: Session = Depends(get_db)):
+def get_events(planet_id: int, date: str | None = "", session: Session = Depends(get_db)):
     return sqlite_db_manager.get_events(planet_id, date, session)
 
 @app.get("/events/dates/")
-def get_dates(planet_id : int, session: Session = Depends(get_db)):
+def get_dates(planet_id: int, session: Session = Depends(get_db)):
     return sqlite_db_manager.get_dates(planet_id, session)
 
 @app.post("/events/")
@@ -130,13 +112,12 @@ def increase_vote(event: model.ExistingEvent, response: Response, session: Sessi
     response.status_code = status_code
     return {"message": message}
 
-
 @app.get("/winners/")
 def get_winners(session: Session = Depends(get_db)):
     return sqlite_db_manager.get_winners(session)
 
 @app.get("/voiceOver/")
-def get_voice_over(content : str, session: Session = Depends(get_db)):
+def get_voice_over(content: str, session: Session = Depends(get_db)):
     return voice_over_manager.generate_text(content)
 
 @app.get("/planets/")
@@ -147,20 +128,6 @@ def get_planets(session: Session = Depends(get_db)):
 def post_planets(new_planet: model.Planet, session: Session = Depends(get_db)):
     planet_id = sqlite_db_manager.post_planet(new_planet, session)
     return {"planet_id": planet_id}
-
-
-async def create_fake_event() -> None:
-    from backend.sqlite_db_manager import SessionLocal
-    session: Session = SessionLocal()
-    await sqlite_db_manager.create_fake_event(session)
-    session.close()
-
-def fake_vote() -> None:
-    from backend.sqlite_db_manager import SessionLocal
-    session: Session = SessionLocal()
-    sqlite_db_manager.fake_vote(session)
-    session.close()
-
 
 @app.get(
     "/health",
@@ -173,4 +140,3 @@ def fake_vote() -> None:
 def get_health(session: Session = Depends(get_db)) -> model.HealthCheck:
     sqlite_db_manager.get_health(session)
     return model.HealthCheck(status="OK")
-
