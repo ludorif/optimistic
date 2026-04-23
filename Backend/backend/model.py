@@ -6,13 +6,13 @@ class Date(BaseModel):
 
 class ExistingEvent(BaseModel):
     event_id: int
-    uuid: str
+    uuid: str = ""
     planet_id: int
 
 class NewEvent(BaseModel):
     story: str
     event_date: str
-    uuid: str
+    uuid: str = ""
     planet_id: int
 
 class HealthCheck(BaseModel):

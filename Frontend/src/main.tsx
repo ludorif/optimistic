@@ -13,6 +13,17 @@ import React from "react";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+async function initSession() {
+    let token = localStorage.getItem("session_token");
+    if (!token) {
+        const response = await axios.get("session/");
+        token = response.data.token;
+        localStorage.setItem("session_token", token!);
+    }
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
+
+initSession();
 
 export default function App() {
     return (

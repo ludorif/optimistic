@@ -21,6 +21,7 @@ from apscheduler.triggers.cron import CronTrigger
 from . import comic_ai_manager
 from . import sqlite_db_manager
 from .sqlite_db_manager import get_db
+from .auth import create_session_token, get_current_uuid
 
 @asynccontextmanager
 async def lifespan(fast_api_app: FastAPI):
@@ -104,6 +105,11 @@ async def generate_summary_and_comic() -> None:
 
 
 
+@app.get("/session/")
+def get_session():
+    _, token = create_session_token()
+    return {"token": token}
+
 @app.get("/events/")
 def get_events(planet_id : int, date : str | None = "", session: Session = Depends(get_db)):
     return sqlite_db_manager.get_events(planet_id, date, session)
@@ -113,11 +119,13 @@ def get_dates(planet_id : int, session: Session = Depends(get_db)):
     return sqlite_db_manager.get_dates(planet_id, session)
 
 @app.post("/events/")
-async def add_new_event(new_event: model.NewEvent, response: Response, session: Session = Depends(get_db)):
+async def add_new_event(new_event: model.NewEvent, response: Response, session: Session = Depends(get_db), uuid: str = Depends(get_current_uuid)):
+    new_event.uuid = uuid
     return await sqlite_db_manager.add_new_event(new_event, response, session)
 
 @app.put("/events/")
-def increase_vote(event: model.ExistingEvent, request: Request,  response: Response, session: Session = Depends(get_db)):
+def increase_vote(event: model.ExistingEvent, response: Response, session: Session = Depends(get_db), uuid: str = Depends(get_current_uuid)):
+    event.uuid = uuid
     status_code, message = sqlite_db_manager.increase_vote(event, session)
     response.status_code = status_code
     return {"message": message}

@@ -23,12 +23,6 @@ const ToVotePage = () => {
             return
         }
 
-        const uuid = localStorage.getItem('UUID');
-        if(uuid == null) {
-            localStorage.setItem('UUID', crypto.randomUUID());
-        }
-
-        console.log(GetTodayDateStr());
         ExecuteRequest(axios.get(`events/?planet_id=${localStorage.getItem('planetId')}&date=${GetTodayDateStr()}`), UpdateEventsToVoteOn)
     }, [toRefresh]);
 
@@ -38,11 +32,7 @@ const ToVotePage = () => {
     }
 
     function VoteFor(eventId : number) {
-        ExecuteRequest(axios.put('events/', {event_id: eventId, uuid: localStorage.getItem('UUID'), planet_id: Number(localStorage.getItem('planetId'))},{
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }), ForceRefresh);
+        ExecuteRequest(axios.put('events/', {event_id: eventId, planet_id: Number(localStorage.getItem('planetId'))}), ForceRefresh);
     }
 
     function UpdateEventsToVoteOn(eventsArray: OEvent[]) {
@@ -67,8 +57,7 @@ const ToVotePage = () => {
             {
                 planet_id: Number(localStorage.getItem('planetId')),
                 story: newEventText,
-                event_date:GetTodayDateStr(),
-                uuid: localStorage.getItem('UUID') }), ForceRefresh)
+                event_date: GetTodayDateStr() }), ForceRefresh)
             }
 
     const GetProposeNewEventButtonOrError = () => {
