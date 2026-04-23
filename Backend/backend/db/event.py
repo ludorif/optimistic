@@ -93,7 +93,7 @@ def get_events( planet_id, date_str, session: Session ):
 
     if date_str:
         iso_date = datetime.fromisoformat(
-            date_str.replace("Z", "+00:00")
+            date_str.replace("Z", "+00:00").replace(" ", "+")
         ).date()
 
         query += " AND DATE(e.created_at) = DATE(:date)"
