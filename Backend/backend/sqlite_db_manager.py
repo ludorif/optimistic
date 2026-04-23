@@ -13,10 +13,9 @@ from . import model
 from .db import planet, event, vote, sql_model
 
 SessionLocal : sessionmaker[Session]
-db_path   = os.environ.get("SQLITE_DB_PATH")
+database_url = os.environ.get("DATABASE_URL", "")
 engine = create_engine(
-    str(db_path),
-    connect_args={"check_same_thread": False},
+    database_url,
     pool_size=10,
     max_overflow=20,
     pool_timeout=30,
@@ -71,34 +70,12 @@ def define_all_winners(session: Session):
 
 
 
-def get_health(session: Session ):
-    """
-        Check SQLite database health using SQLAlchemy.
-
-        Args:
-            db_url (str): SQLAlchemy database URL, e.g., "sqlite:///mydatabase.db"
-            backup_path (str): Optional path to save a backup of the database
-        """
+def get_health(session: Session):
     try:
-        # 1. Integrity check
-        result = session.execute(text("PRAGMA integrity_check;")).fetchone()
-
-        if result is None:
-            logger.error("Integrity check failed: no result")
-        else:
-            if result[0] == "ok":
-                logger.info("Integrity check passed.")
-            else:
-                logger.error("Integrity check failed: %s", result[0])
-
-        # 2. Foreign key check
-        fk_issues = session.execute(text("PRAGMA foreign_key_check;")).fetchall()
-        if not fk_issues:
-            logger.info("Foreign key check passed.")
-        else:
-            logger.error("Foreign key issues found: %s", fk_issues)
-    except Exception as e:
-        logger.exception("Database error")
+        session.execute(text("SELECT 1"))
+        logger.info("Database health check passed.")
+    except Exception:
+        logger.exception("Database health check failed")
 
 
 def get_all_events_story(planet_id, session: Session):
