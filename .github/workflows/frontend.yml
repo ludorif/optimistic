@@ -63,6 +63,8 @@ jobs:
           file: ./Frontend/Dockerfile
           push: true
           no-cache: true
-          tags: ludorif/optimistic-frontend:${{ steps.version.outputs.tag }}
+          tags: |
+            ludorif/optimistic-frontend:${{ steps.version.outputs.tag }}
+            ludorif/optimistic-frontend:latest
           build-args: VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}
           platforms: linux/amd64

@@ -65,5 +65,7 @@ jobs:
           file: ./Backend/Dockerfile
           push: true
           no-cache: true
-          tags: ludorif/optimistic-backend:${{ steps.version.outputs.tag }}
+          tags: |
+            ludorif/optimistic-backend:${{ steps.version.outputs.tag }}
+            ludorif/optimistic-backend:latest
           platforms: linux/amd64
