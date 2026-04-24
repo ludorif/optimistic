@@ -1,164 +1,125 @@
-import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import {
-    ReactFlow,
-    Background,
-    Controls,
-    type Edge,
-    type Node,
-    NodeTypes
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import WinnerFlowNode, {type WinnerFlowNodeData, WinnerNode} from "../components/WinnerFlowNode";
-import ExecuteRequest from "../AxiosManager.jsx";
 //Copyright (c) 2025 Ludovic Riffiod
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import styled from "styled-components";
+import OpWinnerEvent from "../components/OpWinnerEvent";
+import ExecuteRequest from "../AxiosManager.jsx";
 import titleStyle from "../Helper.jsx";
 import { useNavigate } from "react-router-dom";
-
-const winnerNodeTypes: NodeTypes = {
-    winnerEvent: WinnerFlowNode,
-};
-
-const NODE_W = 750;
-const NODE_H = 750;
-const DAY_GAP = 500;
-const COLS = 3;
+import { ArrowLine, ArrowOverlay } from "../components/ArrowOverlay.jsx";
+import {DateGroup} from "../components/DateGroup";
 
 
-function nodeIdForEvent(event: OEvent & { _id?: string }) {
-    return event._id != null ? `e-${event._id}` : `e-${event.id}`;
-}
+const PageWrapper = styled.div`
+    width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
+`;
 
-function buildWinnerFlow(
-    eventsArray: OEvent[],
-    winners: OEvent[],
-): { nodes: WinnerNode[]; edges: Edge[] }
-{
-    const nodes: WinnerNode[] = [];
-    const winnerIdsOrdered: string[] = [];
+const GridContainer = styled.div`
+    position: relative;
+`;
 
-    if (eventsArray.length === 0) {
-        return { nodes, edges: [] };
-    }
 
-    const winnerSet = (e: OEvent) => winners.some((w) => w.id === e.id);
-
-    let date = Date.parse(eventsArray[0].created_at);
-    let globalY = 0;
-    let currentLine: OEvent[] = [];
-
-    const flushLine = () => {
-        if (currentLine.length === 0) return;
-        currentLine.forEach((event, idx) => {
-            const col = idx % COLS;
-            const rowInLine = Math.floor(idx / COLS);
-            const isWinner = winnerSet(event);
-            const id = nodeIdForEvent(event);
-            nodes.push({
-                id,
-                type: "winnerEvent",
-                position: { x: col * NODE_W, y: globalY + rowInLine * NODE_H },
-                data: { event, isWinner },
-                draggable: false,
-            });
-            if (isWinner) {
-                winnerIdsOrdered.push(id);
-            }
-        });
-        const rows = Math.ceil(currentLine.length / COLS);
-        globalY += rows * NODE_H + DAY_GAP;
-        currentLine = [];
-    };
-
-    for (const event of eventsArray) {
-        const parsedDate = Date.parse(event.created_at);
-        if (parsedDate > date) {
-            flushLine();
-            date = parsedDate;
+function groupEventsByDate(events: OEvent[]): { date: string; events: OEvent[] }[] {
+    const groups: { date: string; events: OEvent[] }[] = [];
+    let currentDate = "";
+    let currentGroup: OEvent[] = [];
+    for (const event of events) {
+        const date = event.created_at.slice(0, 10);
+        if (date !== currentDate) {
+            if (currentGroup.length > 0) groups.push({ date: currentDate, events: currentGroup });
+            currentDate = date;
+            currentGroup = [];
         }
-        currentLine.push(event);
+        currentGroup.push(event);
     }
-    flushLine();
-
-    const edges: Edge[] = [];
-    for (let i = 0; i < winnerIdsOrdered.length - 1; i++) {
-        edges.push({
-            id: `winner-chain-${winnerIdsOrdered[i]}-${winnerIdsOrdered[i + 1]}`,
-            source: winnerIdsOrdered[i],
-            sourceHandle: "bottom",
-            target: winnerIdsOrdered[i + 1],
-            targetHandle: "top",
-            style: { stroke: "#888", strokeDasharray: "5 5" },
-            type: "smoothstep",
-        });
-    }
-
-    return { nodes, edges };
+    if (currentGroup.length > 0) groups.push({ date: currentDate, events: currentGroup });
+    return groups;
 }
+
 
 function WinnersPage() {
     const [events, setEvents] = useState<OEvent[]>([]);
     const [winners, setWinners] = useState<OEvent[]>([]);
+    const [arrows, setArrows] = useState<ArrowLine[]>([]);
     const navigate = useNavigate();
 
+    const gridRef = useRef<HTMLDivElement>(null);
+    const winnerCardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-    function UpdateWinners(winnersArray: OEvent[]) {
-        setWinners(winnersArray);
-    }
+    const setWinnerRef = useCallback((id: string) => (el: HTMLDivElement | null) => {
+        if (el) winnerCardRefs.current.set(id, el);
+        else winnerCardRefs.current.delete(id);
+    }, []);
 
-    function UpdateEvents(eventsArray: OEvent[]) {
-        setEvents(eventsArray);
-    }
+    const computeArrows = useCallback(() => {
+        if (!gridRef.current || winners.length < 2) {
+            setArrows([]);
+            return;
+        }
+        const lines: ArrowLine[] = [];
+        for (let i = 0; i < winners.length - 1; i++) {
+            const a = winnerCardRefs.current.get(String(winners[i].id));
+            const b = winnerCardRefs.current.get(String(winners[i + 1].id));
+            if (!a || !b) continue;
+            lines.push({
+                x1: a.offsetLeft + a.offsetWidth / 2,
+                y1: a.offsetTop + a.offsetHeight,
+                x2: b.offsetLeft + b.offsetWidth / 2,
+                y2: b.offsetTop,
+            });
+        }
+        setArrows(lines);
+    }, [winners]);
+
+    useLayoutEffect(() => {
+        computeArrows();
+    }, [computeArrows, events]);
 
     useEffect(() => {
-        const planetId = localStorage.getItem('planetId');
-        if (!planetId || planetId === "undefined")
-        {
-            navigate('/Planet');
-            return
+        if (!gridRef.current) return;
+        const ro = new ResizeObserver(computeArrows);
+        ro.observe(gridRef.current);
+        return () => ro.disconnect();
+    }, [computeArrows]);
+
+    useEffect(() => {
+        const planetId = localStorage.getItem("planetId");
+        if (!planetId || planetId === "undefined") {
+            navigate("/Planet");
+            return;
         }
-        ExecuteRequest(axios.get("winners/"), UpdateWinners);
+        ExecuteRequest(axios.get("winners/"), setWinners);
     }, []);
 
     useEffect(() => {
-        if (winners.length === 0) {
-            return;
-        }
+        if (winners.length === 0) return;
         ExecuteRequest(
             axios.get(`events/?planet_id=${localStorage.getItem("planetId")}`),
-            UpdateEvents,
+            setEvents,
         );
     }, [winners]);
 
-    const { nodes, edges } = useMemo(
-        () => buildWinnerFlow(events, winners),
-        [events, winners],
-    );
+    const winnerIds = useMemo(() => new Set(winners.map((w) => String(w.id))), [winners]);
+    const groups = useMemo(() => groupEventsByDate(events), [events]);
 
-    // @ts-ignore
     return (
-        <div style={{ width: "100%", height: "calc(100vh - 120px)", minHeight: 480 }}>
+        <PageWrapper>
             <h1 style={titleStyle}>Events that won:</h1>
-            <div style={{ width: "100%", height: "calc(100% - 48px)" }}>
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    nodeTypes={winnerNodeTypes}
-                    fitView = {true}
-                    fitViewOptions={{ padding: 0.15 }}
-                    nodesDraggable={false}
-                    nodesConnectable={false}
-                    elementsSelectable={false}
-                    panOnDrag={false}
-                    panOnScroll={true}
-                    zoomOnScroll={false}
-                    zoomOnPinch={false}
-                    zoomOnDoubleClick={false}
-                >
-
-                </ReactFlow>
-            </div>
-        </div>
+            <GridContainer ref={gridRef}>
+                <ArrowOverlay arrows={arrows} />
+                {groups.map((group) => (
+                    <DateGroup
+                        key={group.date}
+                        date={group.date}
+                        events={group.events}
+                        winnerIds={winnerIds}
+                        setWinnerRef={setWinnerRef}
+                    />
+                ))}
+            </GridContainer>
+        </PageWrapper>
     );
 }
 
